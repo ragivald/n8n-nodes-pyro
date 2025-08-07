@@ -1,3 +1,4 @@
+import { IHttpRequestMethods } from 'n8n-workflow'
 // n8n-nodes-pyro/nodes/Pyro/Pyro.node.ts
 import { IExecuteFunctions } from 'n8n-workflow'
 import {
@@ -606,7 +607,7 @@ export class Pyro implements INodeType {
 
 			const baseUrl = credentials.baseUrl as string
 			const options = {
-				method,
+				method: method as IHttpRequestMethods,
 				body: JSON.stringify(body),
 				headers: { 'Content-Type': 'application/json' },
 				uri: `${baseUrl}${endpoint}`,

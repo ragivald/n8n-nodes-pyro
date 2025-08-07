@@ -10,8 +10,8 @@ export const nodeDescription: INodeTypeDescription = {
 	defaults: {
 		name: 'Pyro',
 	},
-	inputs: ['main' as const],
-	outputs: ['main' as const],
+	inputs: ['main' as 'main'],
+	outputs: ['main' as 'main'],
 	credentials: [
 		{
 			name: 'pyroApi',
