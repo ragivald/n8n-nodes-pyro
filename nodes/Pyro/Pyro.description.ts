@@ -10,8 +10,8 @@ export const nodeDescription: INodeTypeDescription = {
 	defaults: {
 		name: 'Pyro',
 	},
-	inputs: ['main'],
-	outputs: ['main'],
+	inputs: ['main' as const],
+	outputs: ['main' as const],
 	credentials: [
 		{
 			name: 'pyroApi',
@@ -312,8 +312,6 @@ export const nodeDescription: INodeTypeDescription = {
 			name: 'limit',
 			type: 'number',
 			default: 10,
-			minValue: 1,
-			maxValue: 200,
 			description: 'Limit for get_chat_members',
 			displayOptions: {
 				show: {
@@ -422,8 +420,6 @@ export const nodeDescription: INodeTypeDescription = {
 			name: 'limit',
 			type: 'number',
 			default: 10,
-			minValue: 1,
-			maxValue: 100,
 			description: 'Limit for get_user_profile_photos',
 			displayOptions: {
 				show: {
