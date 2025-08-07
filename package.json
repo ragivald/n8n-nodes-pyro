@@ -1,0 +1,19 @@
+{
+	"name": "n8n-nodes-pyro",
+	"version": "0.1.0",
+	"description": "n8n community node for Pyro FastAPI backend integration",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsc"
+	},
+	"author": "",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^18.0.0",
+		"typescript": "^4.0.0"
+	},
+	"dependencies": {
+		"n8n-workflow": "^1.0.0"
+	}
+}
