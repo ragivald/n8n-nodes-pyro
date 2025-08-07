@@ -1,4 +1,4 @@
-import { INodeTypeDescription } from 'n8n-workflow'
+import { INodeTypeDescription, NodeConnectionType } from 'n8n-workflow'
 
 export const nodeDescription: INodeTypeDescription = {
 	displayName: 'Pyro',
@@ -10,8 +10,8 @@ export const nodeDescription: INodeTypeDescription = {
 	defaults: {
 		name: 'Pyro',
 	},
-	inputs: ['main'],
-	outputs: ['main'],
+	inputs: ['main' as NodeConnectionType],
+	outputs: ['main' as NodeConnectionType],
 	credentials: [
 		{
 			name: 'pyroApi',
