@@ -595,6 +595,15 @@ export class Pyro implements INodeType {
 							params: this.getNodeParameter('params', i),
 						}
 						break
+					case 'get_session_string':
+						endpoint = '/auth'
+						body = {
+							api_id: credentials.apiId,
+							api_hash: credentials.apiHash,
+							phone_number: this.getNodeParameter('phone_number', i, ''),
+							bot_token: this.getNodeParameter('bot_token', i, ''),
+						}
+						break
 				}
 			} else if (resource === 'stories') {
 				endpoint = '/get_stories'

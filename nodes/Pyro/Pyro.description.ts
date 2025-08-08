@@ -548,11 +548,42 @@ export const nodeDescription: INodeTypeDescription = {
 					value: 'raw_api',
 					description: 'Call any Pyrogram API method',
 				},
+				{
+					name: 'Get Session String',
+					value: 'get_session_string',
+					description: 'Get Pyrogram session string (user or bot)',
+				},
 			],
 			default: 'raw_api',
 			displayOptions: {
 				show: {
 					resource: ['advanced'],
+				},
+			},
+		},
+		{
+			displayName: 'Phone Number',
+			name: 'phone_number',
+			type: 'string',
+			default: '',
+			description: 'Telegram phone number (for get_session_string)',
+			displayOptions: {
+				show: {
+					resource: ['advanced'],
+					operation: ['get_session_string'],
+				},
+			},
+		},
+		{
+			displayName: 'Bot Token',
+			name: 'bot_token',
+			type: 'string',
+			default: '',
+			description: 'Telegram bot token (for get_session_string)',
+			displayOptions: {
+				show: {
+					resource: ['advanced'],
+					operation: ['get_session_string'],
 				},
 			},
 		},
