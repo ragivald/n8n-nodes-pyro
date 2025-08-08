@@ -32,6 +32,9 @@ export const nodeDescription: INodeTypeDescription = {
 				{ name: 'Stories', value: 'stories' },
 				{ name: 'Reactions', value: 'reactions' },
 				{ name: 'Advanced', value: 'advanced' },
+				{ name: 'Invite Links', value: 'invite_links' },
+				{ name: 'Password', value: 'password' },
+				{ name: 'Utilities', value: 'utilities' },
 			],
 			default: 'messages',
 			description: 'Resource to operate on',
@@ -648,6 +651,232 @@ export const nodeDescription: INodeTypeDescription = {
 			displayOptions: {
 				show: {
 					resource: ['reactions'],
+				},
+			},
+		},
+		// Invite Links operations
+		{
+			displayName: 'Operation',
+			name: 'operation',
+			type: 'options',
+			noDataExpression: true,
+			options: [
+				{
+					name: 'Get Chat Invite Link Info',
+					value: 'get_chat_invite_link_info',
+					description: 'Get info about a chat invite link',
+				},
+				{
+					name: 'Export Chat Invite Link',
+					value: 'export_chat_invite_link',
+					description: 'Export a chat invite link',
+				},
+				{
+					name: 'Create Chat Invite Link',
+					value: 'create_chat_invite_link',
+					description: 'Create a new chat invite link',
+				},
+				{
+					name: 'Edit Chat Invite Link',
+					value: 'edit_chat_invite_link',
+					description: 'Edit a chat invite link',
+				},
+				{
+					name: 'Revoke Chat Invite Link',
+					value: 'revoke_chat_invite_link',
+					description: 'Revoke a chat invite link',
+				},
+				{
+					name: 'Delete Chat Invite Link',
+					value: 'delete_chat_invite_link',
+					description: 'Delete a chat invite link',
+				},
+				{
+					name: 'Get Chat Invite Link Members',
+					value: 'get_chat_invite_link_members',
+					description: 'Get members by invite link',
+				},
+				{
+					name: 'Get Chat Invite Link Members Count',
+					value: 'get_chat_invite_link_members_count',
+					description: 'Get count of members by invite link',
+				},
+				{
+					name: 'Get Chat Invite Links',
+					value: 'get_chat_invite_links',
+					description: 'Get all chat invite links',
+				},
+				{
+					name: 'Get Chat Invite Links Count',
+					value: 'get_chat_invite_links_count',
+					description: 'Get count of chat invite links',
+				},
+				{
+					name: 'Get Chat Admins With Invite Links',
+					value: 'get_chat_admins_with_invite_links',
+					description: 'Get chat admins with invite links',
+				},
+				{
+					name: 'Get Chat Join Requests',
+					value: 'get_chat_join_requests',
+					description: 'Get chat join requests',
+				},
+				{
+					name: 'Delete All Revoked Chat Invite Links',
+					value: 'delete_all_revoked_chat_invite_links',
+					description: 'Delete all revoked chat invite links',
+				},
+				{
+					name: 'Approve Chat Join Request',
+					value: 'approve_chat_join_request',
+					description: 'Approve a chat join request',
+				},
+				{
+					name: 'Approve All Chat Join Requests',
+					value: 'approve_all_chat_join_requests',
+					description: 'Approve all chat join requests',
+				},
+				{
+					name: 'Decline Chat Join Request',
+					value: 'decline_chat_join_request',
+					description: 'Decline a chat join request',
+				},
+				{
+					name: 'Decline All Chat Join Requests',
+					value: 'decline_all_chat_join_requests',
+					description: 'Decline all chat join requests',
+				},
+			],
+			displayOptions: {
+				show: {
+					resource: ['invite_links'],
+				},
+			},
+		},
+		// Parameters for Invite Links operations
+		{
+			displayName: 'Chat ID',
+			name: 'chat_id',
+			type: 'string',
+			default: '',
+			description: 'Target chat ID',
+			displayOptions: {
+				show: {
+					resource: ['invite_links'],
+					operation: [
+						'export_chat_invite_link',
+						'create_chat_invite_link',
+						'edit_chat_invite_link',
+						'revoke_chat_invite_link',
+						'delete_chat_invite_link',
+						'get_chat_invite_links',
+						'get_chat_invite_links_count',
+						'get_chat_admins_with_invite_links',
+						'get_chat_join_requests',
+						'delete_all_revoked_chat_invite_links',
+						'approve_chat_join_request',
+						'approve_all_chat_join_requests',
+						'decline_chat_join_request',
+						'decline_all_chat_join_requests',
+					],
+				},
+			},
+		},
+		{
+			displayName: 'Invite Link',
+			name: 'invite_link',
+			type: 'string',
+			default: '',
+			description: 'Invite link string',
+			displayOptions: {
+				show: {
+					resource: ['invite_links'],
+					operation: [
+						'get_chat_invite_link_info',
+						'edit_chat_invite_link',
+						'revoke_chat_invite_link',
+						'delete_chat_invite_link',
+						'get_chat_invite_link_members',
+						'get_chat_invite_link_members_count',
+						'approve_all_chat_join_requests',
+						'decline_all_chat_join_requests',
+					],
+				},
+			},
+		},
+		{
+			displayName: 'Name',
+			name: 'name',
+			type: 'string',
+			default: '',
+			description: 'Invite link name',
+			displayOptions: {
+				show: {
+					resource: ['invite_links'],
+					operation: ['create_chat_invite_link', 'edit_chat_invite_link'],
+				},
+			},
+		},
+		// Parameters for Password operations
+		{
+			displayName: 'Password',
+			name: 'password',
+			type: 'string',
+			default: '',
+			description: 'Password',
+			displayOptions: {
+				show: {
+					resource: ['password'],
+					operation: [
+						'enable_cloud_password',
+						'change_cloud_password',
+						'remove_cloud_password',
+					],
+				},
+			},
+		},
+		{
+			displayName: 'Hint',
+			name: 'hint',
+			type: 'string',
+			default: '',
+			description: 'Password hint',
+			displayOptions: {
+				show: {
+					resource: ['password'],
+					operation: ['enable_cloud_password', 'change_cloud_password'],
+				},
+			},
+		},
+		// Parameters for Utilities operations
+		{
+			displayName: 'Parse Mode',
+			name: 'parse_mode',
+			type: 'options',
+			options: [
+				{ name: 'Markdown', value: 'Markdown' },
+				{ name: 'HTML', value: 'HTML' },
+				{ name: 'None', value: '' },
+			],
+			default: '',
+			description: 'Parse mode for set_parse_mode',
+			displayOptions: {
+				show: {
+					resource: ['utilities'],
+					operation: ['set_parse_mode'],
+				},
+			},
+		},
+		{
+			displayName: 'Clients',
+			name: 'clients',
+			type: 'string',
+			default: '',
+			description: 'Clients for compose (comma-separated)',
+			displayOptions: {
+				show: {
+					resource: ['utilities'],
+					operation: ['compose'],
 				},
 			},
 		},

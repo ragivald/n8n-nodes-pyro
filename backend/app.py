@@ -1748,3 +1748,458 @@ async def raw_api(req: RawApiRequest):
         return {"error": str(e)}
     await client.stop()
     return {"result": str(result)}
+
+# --- New endpoints for missing operations (stubs, to be implemented) ---
+from fastapi import Body
+
+@app.post("/send_media_group")
+async def send_media_group(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    media: list = Body(...),
+    disable_notification: bool = Body(False),
+    reply_to_message_id: int = Body(None)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/send_chat_action")
+async def send_chat_action(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    action: str = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/send_cached_media")
+async def send_cached_media(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    file_id: str = Body(...),
+    caption: str = Body(None),
+    parse_mode: str = Body(None),
+    disable_notification: bool = Body(False)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/batch_send_messages")
+async def batch_send_messages(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    messages: list = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/schedule_message")
+async def schedule_message(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    text: str = Body(...),
+    schedule_date: int = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/get_chat_history_count")
+async def get_chat_history_count(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/get_dialogs")
+async def get_dialogs(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    limit: int = Body(20),
+    offset_date: int = Body(None),
+    offset_id: int = Body(None),
+    offset_peer: int = Body(None),
+    folder_id: int = Body(None)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/get_dialogs_count")
+async def get_dialogs_count(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    pinned_only: bool = Body(False)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/set_chat_permissions")
+async def set_chat_permissions(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    permissions: dict = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/pin_chat_message")
+async def pin_chat_message(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    message_id: int = Body(...),
+    disable_notification: bool = Body(False),
+    both_sides: bool = Body(False)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/unpin_chat_message")
+async def unpin_chat_message(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    message_id: int = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/unpin_all_chat_messages")
+async def unpin_all_chat_messages(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/set_chat_description")
+async def set_chat_description(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    description: str = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/set_chat_username")
+async def set_chat_username(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    username: str = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/block_user")
+async def block_user(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    user_id: int = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/unblock_user")
+async def unblock_user(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    user_id: int = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/set_profile_photo")
+async def set_profile_photo(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    photo: str = Body(...),
+    video: str = Body(None),
+    video_start_ts: int = Body(None)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/delete_profile_photos")
+async def delete_profile_photos(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    photo_ids: list = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/update_profile")
+async def update_profile(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    first_name: str = Body(None),
+    last_name: str = Body(None),
+    bio: str = Body(None)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/get_common_chats")
+async def get_common_chats(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    user_id: int = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/set_emoji_status")
+async def set_emoji_status(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    emoji_status: str = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/import_contacts")
+async def import_contacts(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    contacts: list = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/get_contacts_count")
+async def get_contacts_count(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/get_chat_invite_link_info")
+async def get_chat_invite_link_info(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    invite_link: str = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/export_chat_invite_link")
+async def export_chat_invite_link(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/create_chat_invite_link")
+async def create_chat_invite_link(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    name: str = Body(None),
+    expire_date: int = Body(None),
+    member_limit: int = Body(None),
+    creates_join_request: bool = Body(None)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/edit_chat_invite_link")
+async def edit_chat_invite_link(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    invite_link: str = Body(...),
+    name: str = Body(None),
+    expire_date: int = Body(None),
+    member_limit: int = Body(None),
+    creates_join_request: bool = Body(None)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/revoke_chat_invite_link")
+async def revoke_chat_invite_link(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    invite_link: str = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/delete_chat_invite_link")
+async def delete_chat_invite_link(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    invite_link: str = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/get_chat_invite_link_members")
+async def get_chat_invite_link_members(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    invite_link: str = Body(...),
+    limit: int = Body(None),
+    offset: int = Body(None)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/get_chat_invite_link_members_count")
+async def get_chat_invite_link_members_count(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    invite_link: str = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/get_chat_invite_links")
+async def get_chat_invite_links(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    admin_id: int = Body(None),
+    limit: int = Body(None),
+    offset: int = Body(None),
+    revoked: bool = Body(None)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/get_chat_invite_links_count")
+async def get_chat_invite_links_count(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    admin_id: int = Body(None),
+    revoked: bool = Body(None)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/get_chat_admins_with_invite_links")
+async def get_chat_admins_with_invite_links(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/get_chat_join_requests")
+async def get_chat_join_requests(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    limit: int = Body(None),
+    query: str = Body(None)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/delete_all_revoked_chat_invite_links")
+async def delete_all_revoked_chat_invite_links(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    admin_id: int = Body(None)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/approve_chat_join_request")
+async def approve_chat_join_request(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    user_id: int = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/approve_all_chat_join_requests")
+async def approve_all_chat_join_requests(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    invite_link: str = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/decline_chat_join_request")
+async def decline_chat_join_request(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    user_id: int = Body(...)
+):
+    return {"error": "Not implemented yet"}
+
+@app.post("/decline_all_chat_join_requests")
+async def decline_all_chat_join_requests(
+    api_id: int = Body(...),
+    api_hash: str = Body(...),
+    session_string: str = Body(None),
+    bot_token: str = Body(None),
+    chat_id: int = Body(...),
+    invite_link: str = Body(...)
+):
+    return {"error": "Not implemented yet"}
