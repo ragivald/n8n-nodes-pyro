@@ -4,3 +4,4 @@ pydantic
 pyrogram
 tgcrypto
 aiohttp
+aiohttp-socks

@@ -10,16 +10,36 @@ from typing import Dict, Any, Optional
 
 import aiohttp
 from pyrogram import Client, filters, types
+from pydantic import BaseModel
+from typing import Optional, List, Dict, Any
 
 app = FastAPI()
 
 
-from pydantic import BaseModel
-from typing import Optional
-
 logger = logging.getLogger(__name__)
 
 STATE_FILE = 'trigger_state.json'
+
+
+class AuthRequest(BaseModel):
+    api_id: int
+    api_hash: str
+    phone_number: Optional[str] = None
+    bot_token: Optional[str] = None
+
+
+class TriggerAddRequest(BaseModel):
+    triggerType: str
+    webhookUrl: Optional[str] = None
+    api_id: Optional[int] = None
+    api_hash: Optional[str] = None
+    session_string: Optional[str] = None
+    bot_token: Optional[str] = None
+    filters: Optional[Dict[str, Any]] = None
+    updateHandlers: Optional[List[str]] = None
+    method: Optional[str] = None
+    config: Optional[Dict[str, Any]] = None
+    pollingInterval: Optional[int] = None
 
 
 class PollingTask:
