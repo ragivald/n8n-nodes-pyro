@@ -71,6 +71,7 @@ export const nodeDescription: INodeTypeDescription = {
 						{ name: 'Channel', value: 'channel' },
 						{ name: 'Bot', value: 'bot' },
 					],
+					default: [],
 				},
 				{ displayName: 'Chat ID', name: 'chatId', type: 'string', default: '' },
 				{
@@ -787,6 +788,7 @@ export const nodeDescription: INodeTypeDescription = {
 			name: 'operation',
 			type: 'options',
 			noDataExpression: true,
+			default: 'get_chat_invite_link_info',
 			options: [
 				{
 					name: 'Get Chat Invite Link Info',

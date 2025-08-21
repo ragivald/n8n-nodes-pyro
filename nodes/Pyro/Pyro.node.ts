@@ -1,7 +1,9 @@
 import { IHttpRequestMethods } from 'n8n-workflow'
 // n8n-nodes-pyro/nodes/Pyro/Pyro.node.ts
 import { IExecuteFunctions } from 'n8n-workflow'
-import { ITriggerFunctions, IWebhookFunctions } from 'n8n-core'
+// use any for trigger/webhook functions to avoid n8n-core import issues in build
+type ITriggerFunctionsAny = any
+type IWebhookFunctionsAny = any
 import {
 	INodeExecutionData,
 	INodeType,
@@ -630,7 +632,7 @@ export class Pyro implements INodeType {
 	}
 
 	// Webhook to receive events from backend/pyrogram_service
-	async webhook(this: IWebhookFunctions) {
+	async webhook(this: IWebhookFunctionsAny) {
 		const bodyData = this.getBodyData()
 		const headerData = this.getHeaderData() as { [key: string]: string }
 		// normalize to array
@@ -661,7 +663,7 @@ export class Pyro implements INodeType {
 	}
 
 	// Trigger activation: register trigger on backend
-	async trigger(this: ITriggerFunctions) {
+	async trigger(this: ITriggerFunctionsAny) {
 		const webhookUrl = this.getNodeWebhookUrl('default')
 		const credentials = await this.getCredentials('pyroApi')
 		const baseUrl = credentials.baseUrl as string
@@ -747,7 +749,7 @@ export class Pyro implements INodeType {
 	}
 
 	// Trigger deactivation: remove trigger from backend
-	async deactivate(this: ITriggerFunctions) {
+	async deactivate(this: ITriggerFunctionsAny) {
 		// If this was a simple webhook trigger, nothing to remove
 		try {
 			const op = this.getNodeParameter('triggerOperation', 0) as string
