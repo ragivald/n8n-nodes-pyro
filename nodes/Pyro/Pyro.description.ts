@@ -4,7 +4,7 @@ export const nodeDescription: INodeTypeDescription = {
 	displayName: 'Pyro',
 	name: 'pyro',
 	//icon: 'file:pyro.svg',
-	icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23f5a623' stroke='%23333' stroke-width='4'/%3E%3Ctext x='50' y='60' font-size='36' text-anchor='middle' fill='%23fff' font-family='Arial'%3E🔥%3C/text%3E%3C/svg%3E",
+	icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+DQogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ4IiBmaWxsPSIjZjVhNjIzIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iNCIvPg0KICA8dGV4dCB4PSI1MCIgeT0iNjAiIGZvbnQtc2l6ZT0iMzYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmYiIGZvbnQtZmFtaWx5PSJBcmlhbCI+8J+UpTwvdGV4dD4NCjwvc3ZnPg0K',
 	group: ['trigger', 'transform'],
 	version: 1,
 	description: 'Interact with Pyro FastAPI backend',
