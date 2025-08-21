@@ -4,7 +4,7 @@ export const nodeDescription: INodeTypeDescription = {
 	displayName: 'Pyro',
 	name: 'pyro',
 	icon: 'file:pyro.svg',
-	group: ['transform', 'trigger'],
+	group: ['trigger', 'transform'],
 	version: 1,
 	description: 'Interact with Pyro FastAPI backend',
 	defaults: {
