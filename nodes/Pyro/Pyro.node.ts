@@ -745,7 +745,7 @@ export class Pyro implements INodeType {
 			console.error('Failed to register Pyro trigger', err)
 			throw err
 		}
-		return true
+		return undefined
 	}
 
 	// Trigger deactivation: remove trigger from backend
