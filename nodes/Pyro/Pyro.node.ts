@@ -11,7 +11,7 @@ import {
 } from 'n8n-workflow'
 import { nodeDescription } from './Pyro.description'
 
-export class Pyro implements INodeType {
+export class Pyro {
 	description: INodeTypeDescription = nodeDescription
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
