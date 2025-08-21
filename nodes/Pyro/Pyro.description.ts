@@ -3,7 +3,8 @@ import { INodeTypeDescription, NodeConnectionType } from 'n8n-workflow'
 export const nodeDescription: INodeTypeDescription = {
 	displayName: 'Pyro',
 	name: 'pyro',
-	icon: 'file:pyro.svg',
+	//icon: 'file:pyro.svg',
+	icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23f5a623' stroke='%23333' stroke-width='4'/%3E%3Ctext x='50' y='60' font-size='36' text-anchor='middle' fill='%23fff' font-family='Arial'%3E🔥%3C/text%3E%3C/svg%3E",
 	group: ['trigger', 'transform'],
 	version: 1,
 	description: 'Interact with Pyro FastAPI backend',
