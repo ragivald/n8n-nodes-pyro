@@ -42,6 +42,17 @@ class TriggerAddRequest(BaseModel):
     pollingInterval: Optional[int] = None
 
 
+class SendMessageRequest(BaseModel):
+    api_id: int
+    api_hash: str
+    session_string: Optional[str] = None
+    bot_token: Optional[str] = None
+    chat_id: int
+    text: str
+    parse_mode: Optional[str] = None
+    disable_notification: Optional[bool] = False
+
+
 class PollingTask:
     def __init__(self, client: Client, cfg: Dict[str, Any], webhook_url: str, polling_interval: int = 60):
         self.client = client
