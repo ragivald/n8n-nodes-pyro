@@ -631,9 +631,32 @@ export class Pyro implements INodeType {
 
 	// Webhook to receive events from backend/pyrogram_service
 	async webhook(this: IWebhookFunctions) {
-		const body = this.getBodyData()
+		const bodyData = this.getBodyData()
+		const headerData = this.getHeaderData() as { [key: string]: string }
+		// normalize to array
+		const dataArray = Array.isArray(bodyData) ? bodyData : [bodyData]
+
+		// optional auth validation (if node configured with triggerAuthToken)
+		try {
+			const credentials = await this.getCredentials('pyroApi')
+			const expected = (credentials as any)?.triggerAuthToken
+			if (expected) {
+				const provided =
+					headerData['x-trigger-auth'] || headerData['X-Trigger-Auth']
+				if (!provided || provided !== expected) {
+					console.warn('Pyro webhook auth failed')
+					return {
+						statusCode: 401,
+						body: 'Unauthorized',
+					}
+				}
+			}
+		} catch (e) {
+			// ignore missing credentials during runtime
+		}
+
 		return {
-			workflowData: [this.helpers.returnJsonArray([body])],
+			workflowData: [this.helpers.returnJsonArray(dataArray)],
 		}
 	}
 
@@ -646,6 +669,21 @@ export class Pyro implements INodeType {
 		try {
 			triggerType = this.getNodeParameter('triggerType', 0) as string
 		} catch (e) {}
+
+		// If triggerOperation is get_data, this is a webhook trigger
+		try {
+			const op = this.getNodeParameter('triggerOperation', 0) as string
+			if (op === 'get_data') {
+				// Do not call backend here; n8n will call webhook when event arrives
+				return {
+					webhook: {
+						path: this.getNodeWebhookUrl('default'),
+						method: 'POST',
+					},
+				}
+			}
+		} catch (e) {}
+
 		const payload: any = {
 			triggerType,
 			webhookUrl,
@@ -691,14 +729,33 @@ export class Pyro implements INodeType {
 			headers,
 			json: true,
 		}
-		const response = await this.helpers.request(options)
-		const staticData = this.getWorkflowStaticData()
-		staticData.triggerId = response.trigger_id
+		try {
+			console.log('Registering Pyro trigger', {
+				baseUrl,
+				triggerType,
+				webhookUrl,
+			})
+			const response = await this.helpers.request(options)
+			const staticData = this.getWorkflowStaticData()
+			staticData.triggerId = response.trigger_id
+			console.log('Pyro trigger registered', response.trigger_id)
+		} catch (err) {
+			console.error('Failed to register Pyro trigger', err)
+			throw err
+		}
 		return true
 	}
 
 	// Trigger deactivation: remove trigger from backend
 	async deactivate(this: ITriggerFunctions) {
+		// If this was a simple webhook trigger, nothing to remove
+		try {
+			const op = this.getNodeParameter('triggerOperation', 0) as string
+			if (op === 'get_data') {
+				return true
+			}
+		} catch (e) {}
+
 		const credentials = await this.getCredentials('pyroApi')
 		const baseUrl = credentials.baseUrl as string
 		const staticData = this.getWorkflowStaticData()
@@ -715,9 +772,17 @@ export class Pyro implements INodeType {
 			headers,
 			json: true,
 		}
-		await this.helpers.request(options)
-		delete staticData.triggerId
-		return true
+		try {
+			await this.helpers.request(options)
+			console.log('Removed Pyro trigger', triggerId)
+			delete staticData.triggerId
+			return true
+		} catch (err) {
+			console.error('Failed to remove Pyro trigger', err)
+			// still clear static data to avoid stale id
+			delete staticData.triggerId
+			return true
+		}
 	}
 }
 

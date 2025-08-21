@@ -10,7 +10,7 @@ export const nodeDescription: INodeTypeDescription = {
 	defaults: {
 		name: 'Pyro',
 	},
-	inputs: ['main' as NodeConnectionType],
+	inputs: [],
 	outputs: ['main' as NodeConnectionType],
 	credentials: [
 		{
@@ -28,6 +28,20 @@ export const nodeDescription: INodeTypeDescription = {
 	],
 	properties: [
 		// Trigger properties
+		{
+			displayName: 'Trigger Operation',
+			name: 'triggerOperation',
+			type: 'options',
+			options: [
+				{
+					name: 'Get Data',
+					value: 'get_data',
+					description: 'Wait for incoming messages from Pyrogram backend',
+				},
+			],
+			default: 'get_data',
+			description: 'Trigger action to perform',
+		},
 		{
 			displayName: 'Trigger Type',
 			name: 'triggerType',
