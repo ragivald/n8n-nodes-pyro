@@ -153,6 +153,25 @@ class PyrogramTriggerService:
 
             client.add_handler(_on_message, filters=f)
 
+        elif trigger_type == 'update':
+            # generic update handler: post any incoming update object to webhook
+            await client.start()
+
+            async def _on_update(client_obj, update_obj):
+                try:
+                    payload = {
+                        'triggerType': 'update',
+                        'trigger_id': trigger_id,
+                        'event': update_obj.__class__.__name__,
+                        'data': str(update_obj)
+                    }
+                    await self._post_webhook(webhook_url, payload, trigger_id)
+                except Exception:
+                    logger.exception('Error handling update event')
+
+            # register a catch-all handler
+            client.add_handler(_on_update, filters.all)
+
         elif trigger_type == 'polling':
             # start client and polling task
             await client.start()
@@ -162,6 +181,7 @@ class PyrogramTriggerService:
             entry['task'] = task
 
         # Save minimal state
+        logger.debug('Added trigger %s type=%s webhook=%s', trigger_id, trigger_type, webhook_url)
         self._save_state()
         return trigger_id
 
@@ -196,6 +216,7 @@ class PyrogramTriggerService:
             auth_token = self.auth_token
         if auth_token:
             headers['X-Trigger-Auth'] = auth_token
+        logger.debug('Posting webhook to %s headers=%s payload_keys=%s', webhook_url, list(headers.keys()), list(payload.keys()))
         try:
             async with aiohttp.ClientSession() as session:
                 await session.post(webhook_url, json=payload, headers=headers, timeout=10)

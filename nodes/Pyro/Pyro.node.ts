@@ -645,9 +645,7 @@ export class Pyro implements INodeType {
 		let triggerType = 'message'
 		try {
 			triggerType = this.getNodeParameter('triggerType', 0) as string
-		} catch (e) {
-			// parameter may be absent in older descriptions - default to message
-		}
+		} catch (e) {}
 		const payload: any = {
 			triggerType,
 			webhookUrl,
@@ -658,7 +656,19 @@ export class Pyro implements INodeType {
 		}
 		if (triggerType === 'message') {
 			try {
-				payload.filters = this.getNodeParameter('messageFilters', 0)
+				const mf = this.getNodeParameter('messageFilters', 0) as any
+				payload.filters = {
+					chatType: mf.chatType,
+					chatId: mf.chatId,
+					userIds: mf.userIds,
+					textPattern: mf.textPattern,
+					commands: mf.commands,
+				}
+			} catch (e) {}
+		}
+		if (triggerType === 'update') {
+			try {
+				payload.updateHandlers = this.getNodeParameter('updateHandlers', 0)
 			} catch (e) {}
 		}
 		if (triggerType === 'polling') {
