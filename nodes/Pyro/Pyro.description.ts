@@ -4,7 +4,7 @@ export const nodeDescription: INodeTypeDescription = {
 	displayName: 'Pyro',
 	name: 'pyro',
 	icon: 'file:pyro.svg',
-	group: ['transform'],
+	group: ['transform', 'trigger'],
 	version: 1,
 	description: 'Interact with Pyro FastAPI backend',
 	defaults: {
@@ -18,7 +18,78 @@ export const nodeDescription: INodeTypeDescription = {
 			required: true,
 		},
 	],
+	webhooks: [
+		{
+			name: 'default',
+			httpMethod: 'POST',
+			responseMode: 'onReceived',
+			path: 'pyro-webhook',
+		},
+	],
 	properties: [
+		// Trigger properties
+		{
+			displayName: 'Trigger Type',
+			name: 'triggerType',
+			type: 'options',
+			options: [
+				{ name: 'Message Handler', value: 'message' },
+				{ name: 'Polling', value: 'polling' },
+			],
+			default: 'message',
+			description: 'Type of trigger to register on backend',
+		},
+		{
+			displayName: 'Message Filters',
+			name: 'messageFilters',
+			type: 'collection',
+			placeholder: 'Add Filter',
+			default: {},
+			options: [
+				{ displayName: 'Chat ID', name: 'chatId', type: 'string', default: '' },
+				{
+					displayName: 'Text Pattern (Regex)',
+					name: 'textPattern',
+					type: 'string',
+					default: '',
+				},
+			],
+			displayOptions: { show: { triggerType: ['message'] } },
+		},
+		{
+			displayName: 'Polling Method',
+			name: 'pollingMethod',
+			type: 'options',
+			options: [{ name: 'Chat History', value: 'get_chat_history' }],
+			default: 'get_chat_history',
+			displayOptions: { show: { triggerType: ['polling'] } },
+		},
+		{
+			displayName: 'Polling Interval (seconds)',
+			name: 'pollingInterval',
+			type: 'number',
+			default: 60,
+			description: 'Minimum 10 seconds',
+			displayOptions: { show: { triggerType: ['polling'] } },
+		},
+		{
+			displayName: 'Polling Config',
+			name: 'pollingConfig',
+			type: 'collection',
+			default: {},
+			options: [
+				{ displayName: 'Chat ID', name: 'chatId', type: 'string', default: '' },
+				{ displayName: 'Limit', name: 'limit', type: 'number', default: 100 },
+				{
+					displayName: 'Only New',
+					name: 'onlyNew',
+					type: 'boolean',
+					default: true,
+				},
+			],
+			displayOptions: { show: { triggerType: ['polling'] } },
+		},
+
 		{
 			displayName: 'Resource',
 			name: 'resource',

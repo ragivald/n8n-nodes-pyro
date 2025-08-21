@@ -1,6 +1,7 @@
 import { IHttpRequestMethods } from 'n8n-workflow'
 // n8n-nodes-pyro/nodes/Pyro/Pyro.node.ts
 import { IExecuteFunctions } from 'n8n-workflow'
+import { ITriggerFunctions, IWebhookFunctions } from 'n8n-core'
 import {
 	INodeExecutionData,
 	INodeType,
@@ -627,6 +628,87 @@ export class Pyro implements INodeType {
 		}
 		return [returnData]
 	}
+
+	// Webhook to receive events from backend/pyrogram_service
+	async webhook(this: IWebhookFunctions) {
+		const body = this.getBodyData()
+		return {
+			workflowData: [this.helpers.returnJsonArray([body])],
+		}
+	}
+
+	// Trigger activation: register trigger on backend
+	async trigger(this: ITriggerFunctions) {
+		const webhookUrl = this.getNodeWebhookUrl('default')
+		const credentials = await this.getCredentials('pyroApi')
+		const baseUrl = credentials.baseUrl as string
+		let triggerType = 'message'
+		try {
+			triggerType = this.getNodeParameter('triggerType', 0) as string
+		} catch (e) {
+			// parameter may be absent in older descriptions - default to message
+		}
+		const payload: any = {
+			triggerType,
+			webhookUrl,
+			api_id: credentials.apiId,
+			api_hash: credentials.apiHash,
+			session_string: credentials.sessionString,
+			bot_token: credentials.botToken,
+		}
+		if (triggerType === 'message') {
+			try {
+				payload.filters = this.getNodeParameter('messageFilters', 0)
+			} catch (e) {}
+		}
+		if (triggerType === 'polling') {
+			try {
+				payload.method = this.getNodeParameter('pollingMethod', 0)
+				payload.config = this.getNodeParameter('pollingConfig', 0)
+				payload.pollingInterval = this.getNodeParameter('pollingInterval', 0)
+			} catch (e) {}
+		}
+
+		const headers: any = { 'Content-Type': 'application/json' }
+		if ((credentials as any).triggerAuthToken) {
+			headers['X-Trigger-Auth'] = (credentials as any).triggerAuthToken
+		}
+
+		const options = {
+			method: 'POST' as IHttpRequestMethods,
+			uri: `${baseUrl}/triggers/add`,
+			body: JSON.stringify(payload),
+			headers,
+			json: true,
+		}
+		const response = await this.helpers.request(options)
+		const staticData = this.getWorkflowStaticData()
+		staticData.triggerId = response.trigger_id
+		return true
+	}
+
+	// Trigger deactivation: remove trigger from backend
+	async deactivate(this: ITriggerFunctions) {
+		const credentials = await this.getCredentials('pyroApi')
+		const baseUrl = credentials.baseUrl as string
+		const staticData = this.getWorkflowStaticData()
+		const triggerId = staticData.triggerId
+		if (!triggerId) return true
+		const headers: any = { 'Content-Type': 'application/json' }
+		if ((credentials as any).triggerAuthToken) {
+			headers['X-Trigger-Auth'] = (credentials as any).triggerAuthToken
+		}
+		const options = {
+			method: 'POST' as IHttpRequestMethods,
+			uri: `${baseUrl}/triggers/remove`,
+			body: JSON.stringify({ trigger_id: triggerId }),
+			headers,
+			json: true,
+		}
+		await this.helpers.request(options)
+		delete staticData.triggerId
+		return true
+	}
 }
 
 // n8n-nodes-pyro/nodes/Pyro/Pyro.credentials.ts
@@ -678,6 +760,14 @@ export class PyroApi implements ICredentialType {
 			type: 'string',
 			default: '',
 			description: 'Telegram bot token (optional)',
+		},
+		{
+			displayName: 'Trigger Auth Token',
+			name: 'triggerAuthToken',
+			type: 'string',
+			default: '',
+			description:
+				'Auth token to send as X-Trigger-Auth when registering triggers',
 		},
 	]
 }

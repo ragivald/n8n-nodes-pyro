@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Header, HTTPException
 from fastapi.responses import JSONResponse
 from pyrogram import Client
 import os
@@ -2203,3 +2203,43 @@ async def decline_all_chat_join_requests(
     invite_link: str = Body(...)
 ):
     return {"error": "Not implemented yet"}
+
+# Trigger auth token removed from env - will be provided per-trigger by n8n via header
+
+# Import the trigger service
+from .pyrogram_service import PyrogramTriggerService
+
+_trigger_service = PyrogramTriggerService()
+
+class AddTriggerRequest(BaseModel):
+    triggerType: str
+    webhookUrl: str
+    api_id: int
+    api_hash: str
+    session_string: Optional[str] = None
+    bot_token: Optional[str] = None
+    filters: Optional[dict] = None
+
+@app.post('/triggers/add')
+async def triggers_add(req: AddTriggerRequest, x_trigger_auth: str = Header(None)):
+    cfg = req.dict()
+    # store per-trigger auth token provided by n8n credentials
+    if x_trigger_auth:
+        cfg['auth_token'] = x_trigger_auth
+    trigger_id = await _trigger_service.add_trigger(cfg)
+    return {'trigger_id': trigger_id}
+
+class RemoveTriggerRequest(BaseModel):
+    trigger_id: str
+
+@app.post('/triggers/remove')
+async def triggers_remove(req: RemoveTriggerRequest, x_trigger_auth: str = Header(None)):
+    # removal does not require matching token in MVP
+    ok = await _trigger_service.remove_trigger(req.trigger_id)
+    return {'removed': ok}
+
+@app.get('/triggers/list')
+async def triggers_list(x_trigger_auth: str = Header(None)):
+    # listing returns registered triggers (no auth enforced in MVP)
+    lst = await _trigger_service.list_triggers()
+    return {'triggers': lst}
