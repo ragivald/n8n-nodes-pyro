@@ -2,34 +2,324 @@ from fastapi import FastAPI, Request, Header, HTTPException
 from fastapi.responses import JSONResponse
 from pyrogram import Client
 import os
+import asyncio
+import logging
+import uuid
+import json
+from typing import Dict, Any, Optional
+
+import aiohttp
+from pyrogram import Client, filters, types
 
 app = FastAPI()
 
 
 from pydantic import BaseModel
 from typing import Optional
-import asyncio
 
-# Session and client management
-tg_clients = {}
+logger = logging.getLogger(__name__)
 
-class AuthRequest(BaseModel):
-    api_id: int
-    api_hash: str
-    session_string: Optional[str] = None
-    phone_number: Optional[str] = None
-    bot_token: Optional[str] = None
+STATE_FILE = 'trigger_state.json'
 
-class SendMessageRequest(BaseModel):
-    api_id: int
-    api_hash: str
-    session_string: Optional[str] = None
-    bot_token: Optional[str] = None
-    chat_id: int
-    text: str
-    parse_mode: Optional[str] = None
-    disable_notification: Optional[bool] = False
 
+class PollingTask:
+    def __init__(self, client: Client, cfg: Dict[str, Any], webhook_url: str, polling_interval: int = 60):
+        self.client = client
+        self.cfg = cfg
+        self.webhook_url = webhook_url
+        self.polling_interval = max(10, polling_interval)
+        self._task: Optional[asyncio.Task] = None
+        self.state = cfg.get('state', {})
+
+    async def start(self):
+        self._task = asyncio.create_task(self._run())
+
+    async def _run(self):
+        while True:
+            try:
+                await self.poll_once()
+                await asyncio.sleep(self.polling_interval)
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logger.exception('Polling error: %s', e)
+                await asyncio.sleep(self.polling_interval)
+
+    async def poll_once(self):
+        method = self.cfg.get('method')
+        if method == 'get_chat_history':
+            chat_id = self.cfg['config'].get('chatId')
+            limit = self.cfg['config'].get('limit', 100)
+            only_new = self.cfg['config'].get('onlyNew', True)
+            last_id = self.state.get('lastMessageId', 0)
+            new_messages = []
+            async for msg in self.client.get_chat_history(chat_id, limit=limit):
+                if only_new and getattr(msg, 'id', 0) <= last_id:
+                    break
+                new_messages.append(msg)
+            if new_messages:
+                self.state['lastMessageId'] = new_messages[0].id
+                payload = {
+                    'triggerType': 'polling',
+                    'method': method,
+                    'chatId': chat_id,
+                    'newMessages': [{'id': m.id, 'text': getattr(m, 'text', None), 'date': getattr(m, 'date', None).isoformat() if getattr(m, 'date', None) else None} for m in new_messages]
+                }
+                await self._post(payload)
+
+    async def _post(self, payload: Dict[str, Any]):
+        try:
+            # use auth token from cfg if provided
+            headers = {'Content-Type': 'application/json'}
+            auth_token = self.cfg.get('config', {}).get('auth_token') or self.cfg.get('auth_token')
+            if auth_token:
+                headers['X-Trigger-Auth'] = auth_token
+            async with aiohttp.ClientSession() as session:
+                await session.post(self.webhook_url, json=payload, headers=headers, timeout=10)
+        except Exception:
+            logger.exception('Failed to POST polling payload')
+
+    async def stop(self):
+        if self._task:
+            self._task.cancel()
+            try:
+                await self._task
+            except Exception:
+                pass
+
+
+class PyrogramTriggerService:
+    def __init__(self, auth_token: Optional[str] = None):
+        self.triggers: Dict[str, Dict[str, Any]] = {}
+        self.auth_token = auth_token
+        self._load_state()
+
+    def _load_state(self):
+        try:
+            with open(STATE_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                self.triggers = data.get('triggers', {})
+        except Exception:
+            self.triggers = {}
+
+    def _save_state(self):
+        try:
+            with open(STATE_FILE, 'w', encoding='utf-8') as f:
+                json.dump({'triggers': {tid: {'config': self.triggers[tid]['config']} for tid in self.triggers}}, f)
+        except Exception:
+            logger.exception('Failed to save trigger state')
+
+    async def add_trigger(self, trigger_config: Dict[str, Any]) -> str:
+        trigger_id = str(uuid.uuid4())
+        trigger_type = trigger_config.get('triggerType')
+        webhook_url = trigger_config.get('webhookUrl')
+        api_id = trigger_config.get('api_id')
+        api_hash = trigger_config.get('api_hash')
+        session_string = trigger_config.get('session_string')
+        bot_token = trigger_config.get('bot_token')
+
+        client = Client(
+            name=f'pyro_trigger_{trigger_id}',
+            api_id=api_id,
+            api_hash=api_hash,
+            session_string=session_string,
+            bot_token=bot_token,
+            in_memory=True,
+        )
+
+        entry: Dict[str, Any] = {"config": trigger_config, "client": client, "task": None}
+        self.triggers[trigger_id] = entry
+
+        if trigger_type == 'message':
+            await client.start()
+
+            def _filter_builder(filters_cfg: Dict[str, Any]):
+                f = filters.all
+
+                # chatType may be a list of values
+                chat_types = filters_cfg.get('chatType') or filters_cfg.get('chat_type')
+                if chat_types:
+                    # ensure list
+                    if isinstance(chat_types, str):
+                        chat_types = [chat_types]
+                    type_filter = None
+                    for t in chat_types:
+                        tf = None
+                        if t == 'private':
+                            tf = filters.private
+                        elif t == 'group':
+                            tf = filters.group
+                        elif t == 'channel':
+                            tf = filters.channel
+                        elif t == 'bot' and hasattr(filters, 'bot'):
+                            tf = filters.bot
+                        if tf is not None:
+                            type_filter = tf if type_filter is None else (type_filter | tf)
+                    if type_filter is not None:
+                        f = f & type_filter
+
+                # chatId filter
+                chat_id = filters_cfg.get('chatId') or filters_cfg.get('chat_id')
+                if chat_id:
+                    try:
+                        cid = int(str(chat_id))
+                    except Exception:
+                        cid = chat_id
+                    f = f & filters.chat(cid)
+
+                # userIds (comma-separated)
+                user_ids = filters_cfg.get('userIds') or filters_cfg.get('user_ids')
+                if user_ids:
+                    if isinstance(user_ids, str):
+                        ids = [int(x.strip()) for x in user_ids.split(',') if x.strip()]
+                    elif isinstance(user_ids, list):
+                        ids = [int(x) for x in user_ids]
+                    else:
+                        ids = []
+                    if ids:
+                        f = f & filters.user(ids)
+
+                # text pattern (regex)
+                text_pattern = filters_cfg.get('textPattern') or filters_cfg.get('text_pattern')
+                if text_pattern:
+                    f = f & filters.regex(text_pattern)
+
+                # commands (comma-separated)
+                commands = filters_cfg.get('commands')
+                if commands:
+                    if isinstance(commands, str):
+                        cmds = [c.strip() for c in commands.split(',') if c.strip()]
+                    elif isinstance(commands, list):
+                        cmds = commands
+                    else:
+                        cmds = []
+                    if cmds:
+                        try:
+                            f = f & filters.command(cmds)
+                        except Exception:
+                            # fallback: match by regex for commands without pyrogram command filter
+                            pattern = '|'.join([r"^/" + re.escape(c) for c in cmds])
+                            f = f & filters.regex(pattern)
+
+                return f
+
+            import re
+
+            filters_cfg = trigger_config.get('filters', trigger_config.get('messageFilters', {}))
+            f = _filter_builder(filters_cfg)
+
+            async def _on_message(client_obj, message):
+                payload = {
+                    'triggerType': 'message',
+                    'trigger_id': trigger_id,
+                    'messageId': getattr(message, 'id', None),
+                    'text': getattr(message, 'text', None) or getattr(message, 'caption', None),
+                    'chatId': message.chat.id if hasattr(message, 'chat') else None,
+                    'chatType': message.chat.type if hasattr(message, 'chat') else None,
+                    'userId': message.from_user.id if getattr(message, 'from_user', None) else None,
+                    'userName': message.from_user.username if getattr(message, 'from_user', None) else None,
+                    'date': message.date.isoformat() if getattr(message, 'date', None) else None,
+                }
+                await self._post_webhook(webhook_url, payload, trigger_id)
+
+            client.add_handler(_on_message, filters=f)
+
+        elif trigger_type == 'update':
+            # specific update handlers: register handler that posts selected update events
+            await client.start()
+            handlers_list = trigger_config.get('updateHandlers') or trigger_config.get('update_handlers') or []
+            # mapping from handler key to expected pyrogram type class name
+            mapping = {
+                'on_callback_query': 'CallbackQuery',
+                'on_inline_query': 'InlineQuery',
+                'on_chosen_inline_result': 'ChosenInlineResult',
+                'on_chat_member_updated': 'ChatMemberUpdated',
+                'on_user_status': 'UserStatus',
+                'on_poll': 'Poll',
+                'on_poll_answer': 'PollAnswer',
+                'on_chat_join_request': 'ChatJoinRequest',
+            }
+            expected_names = [mapping[h] for h in handlers_list if h in mapping]
+
+            async def _on_selected_update(client_obj, update_obj):
+                try:
+                    cls_name = update_obj.__class__.__name__
+                    if cls_name not in expected_names:
+                        return
+                    payload = {
+                        'triggerType': 'update',
+                        'trigger_id': trigger_id,
+                        'event': cls_name,
+                        'data': str(update_obj)
+                    }
+                    await self._post_webhook(webhook_url, payload, trigger_id)
+                except Exception:
+                    logger.exception('Error handling selected update event')
+
+            client.add_handler(_on_selected_update, filters.all)
+            logger.debug('Registered update handler for trigger %s events=%s', trigger_id, expected_names)
+
+        elif trigger_type == 'polling':
+            # start client and polling task
+            await client.start()
+            polling_interval = int(trigger_config.get('pollingInterval', 60))
+            task = PollingTask(client, trigger_config, webhook_url, polling_interval)
+            await task.start()
+            entry['task'] = task
+
+        # Save minimal state
+        logger.debug('Added trigger %s type=%s webhook=%s', trigger_id, trigger_type, webhook_url)
+        self._save_state()
+        return trigger_id
+
+    async def remove_trigger(self, trigger_id: str) -> bool:
+        entry = self.triggers.get(trigger_id)
+        if not entry:
+            return False
+        client: Client = entry.get('client')
+        try:
+            # stop polling task if present
+            task_obj = entry.get('task')
+            if task_obj:
+                await task_obj.stop()
+            await client.stop()
+        except Exception:
+            logger.exception('Error stopping client for trigger %s', trigger_id)
+        del self.triggers[trigger_id]
+        self._save_state()
+        return True
+
+    async def list_triggers(self) -> Dict[str, Any]:
+        return {tid: {'config': self.triggers[tid]['config']} for tid in self.triggers}
+
+    async def _post_webhook(self, webhook_url: str, payload: Dict[str, Any], trigger_id: str = None):
+        headers = {'Content-Type': 'application/json'}
+        # prefer per-trigger auth token
+        auth_token = None
+        if trigger_id and trigger_id in self.triggers:
+            cfg = self.triggers[trigger_id]['config']
+            auth_token = cfg.get('auth_token') or cfg.get('config', {}).get('auth_token')
+        if not auth_token:
+            auth_token = self.auth_token
+        if auth_token:
+            headers['X-Trigger-Auth'] = auth_token
+        logger.debug('Posting webhook to %s headers=%s payload_keys=%s', webhook_url, list(headers.keys()), list(payload.keys()))
+        try:
+            async with aiohttp.ClientSession() as session:
+                await session.post(webhook_url, json=payload, headers=headers, timeout=10)
+        except Exception:
+            logger.exception('Failed to POST webhook payload')
+
+    async def stop_all(self):
+        for tid in list(self.triggers.keys()):
+            await self.remove_trigger(tid)
+
+
+# instantiate service
+_trigger_service = PyrogramTriggerService()
+
+
+# --- Existing endpoints ---
 
 @app.get("/health")
 def health():
@@ -2203,43 +2493,3 @@ async def decline_all_chat_join_requests(
     invite_link: str = Body(...)
 ):
     return {"error": "Not implemented yet"}
-
-# Trigger auth token removed from env - will be provided per-trigger by n8n via header
-
-# Import the trigger service
-from .pyrogram_service import PyrogramTriggerService
-
-_trigger_service = PyrogramTriggerService()
-
-class AddTriggerRequest(BaseModel):
-    triggerType: str
-    webhookUrl: str
-    api_id: int
-    api_hash: str
-    session_string: Optional[str] = None
-    bot_token: Optional[str] = None
-    filters: Optional[dict] = None
-
-@app.post('/triggers/add')
-async def triggers_add(req: AddTriggerRequest, x_trigger_auth: str = Header(None)):
-    cfg = req.dict()
-    # store per-trigger auth token provided by n8n credentials
-    if x_trigger_auth:
-        cfg['auth_token'] = x_trigger_auth
-    trigger_id = await _trigger_service.add_trigger(cfg)
-    return {'trigger_id': trigger_id}
-
-class RemoveTriggerRequest(BaseModel):
-    trigger_id: str
-
-@app.post('/triggers/remove')
-async def triggers_remove(req: RemoveTriggerRequest, x_trigger_auth: str = Header(None)):
-    # removal does not require matching token in MVP
-    ok = await _trigger_service.remove_trigger(req.trigger_id)
-    return {'removed': ok}
-
-@app.get('/triggers/list')
-async def triggers_list(x_trigger_auth: str = Header(None)):
-    # listing returns registered triggers (no auth enforced in MVP)
-    lst = await _trigger_service.list_triggers()
-    return {'triggers': lst}

@@ -23,7 +23,7 @@ export const nodeDescription: INodeTypeDescription = {
 			name: 'default',
 			httpMethod: 'POST',
 			responseMode: 'onReceived',
-			path: 'pyro-webhook',
+			path: 'pyrogram-webhook',
 		},
 	],
 	properties: [
