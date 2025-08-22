@@ -10,9 +10,8 @@ export const nodeDescription: INodeTypeDescription = {
 	defaults: {
 		name: 'Pyro',
 	},
-	// Важливо: вказати що нода підтримує тригери
-	inputs: ['main'],
-	outputs: ['main'],
+	inputs: [] as NodeConnectionType[],
+	outputs: ['main' as NodeConnectionType],
 	inputNames: ['main'],
 	outputNames: ['main'],
 	credentials: [

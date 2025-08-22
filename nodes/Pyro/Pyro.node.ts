@@ -87,7 +87,7 @@ export class Pyro implements INodeType {
 				returnData.push({ json: responseData })
 			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push({ json: { error: error.message } })
+					returnData.push({ json: { error: (error as Error).message } })
 				} else {
 					throw error
 				}
@@ -131,24 +131,23 @@ export class Pyro implements INodeType {
 	}
 
 	async trigger(this: ITriggerFunctions): Promise<ITriggerResponse> {
-		const mode = this.getNodeParameter('mode', 0, 'execute') as string
+		const mode = this.getNodeParameter('mode', 0, { extractValue: true }) as string || 'execute'
 
 		// Тільки для trigger mode
 		if (mode !== 'trigger') {
 			return {
 				closeFunction: async () => {},
-				manualTriggerFunction: async () => [[]],
+				manualTriggerFunction: async () => {},
 			}
 		}
 
-		const webhookUrl = this.getNodeWebhookUrl('default')
+		const webhookUrl = (this as any).getNodeWebhookUrl('default')
 		const credentials = await this.getCredentials('pyroApi')
 		const baseUrl = credentials.baseUrl as string
-		const triggerType = this.getNodeParameter(
-			'triggerType',
-			0,
-			'message'
-		) as string
+		let triggerType = 'message'
+		try {
+			triggerType = this.getNodeParameter('triggerType', 0, { extractValue: true }) as string || 'message'
+		} catch (e) {}
 
 		const payload: any = {
 			triggerType,
@@ -220,9 +219,7 @@ export class Pyro implements INodeType {
 			}
 		}
 
-		const manualTriggerFunction = async () => {
-			return [[]]
-		}
+		const manualTriggerFunction = async () => {}
 
 		// Реєструємо тригер
 		const options = {
@@ -249,7 +246,7 @@ export class Pyro implements INodeType {
 
 		return {
 			closeFunction,
-			manualTriggerFunction,
+			manualTriggerFunction: async () => {},
 		}
 	}
 }
