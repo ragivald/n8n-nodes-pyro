@@ -4,13 +4,13 @@ export const nodeDescription: INodeTypeDescription = {
 	displayName: 'Pyro',
 	name: 'pyro',
 	icon: 'file:pyro.svg',
-	group: ['trigger', 'transform'],
+	group: ['transform'],
 	version: 1,
-	description: 'Interact with Pyro FastAPI backend',
+	description: 'Execute Telegram operations via Pyro FastAPI backend',
 	defaults: {
 		name: 'Pyro',
 	},
-	inputs: [],
+	inputs: ['main' as NodeConnectionType],
 	outputs: ['main' as NodeConnectionType],
 	credentials: [
 		{
@@ -18,172 +18,7 @@ export const nodeDescription: INodeTypeDescription = {
 			required: true,
 		},
 	],
-	// Remove polling: true and let Mode handle trigger vs execute
-	webhooks: [
-		{
-			name: 'default',
-			httpMethod: 'POST',
-			responseMode: 'onReceived',
-			path: 'pyrogram-webhook',
-		},
-	],
 	properties: [
-		// Розділити на дві секції: Mode та операції
-		{
-			displayName: 'Mode',
-			name: 'mode',
-			type: 'options',
-			options: [
-				{
-					name: 'Trigger',
-					value: 'trigger',
-					description: 'Listen for incoming events from Telegram',
-				},
-				{
-					name: 'Execute',
-					value: 'execute',
-					description: 'Execute Telegram API operations',
-				},
-			],
-			default: 'execute',
-			description: 'Choose whether to use as trigger or execute operations',
-		},
-		// Trigger properties - показувати тільки в режимі trigger
-		{
-			displayName: 'Trigger Type',
-			name: 'triggerType',
-			type: 'options',
-			options: [
-				{ name: 'Message Handler', value: 'message' },
-				{ name: 'Update Handler', value: 'update' },
-				{ name: 'Polling', value: 'polling' },
-			],
-			default: 'message',
-			description: 'Type of trigger to register on backend',
-			displayOptions: {
-				show: {
-					mode: ['trigger'],
-				},
-			},
-		},
-		{
-			displayName: 'Message Filters',
-			name: 'messageFilters',
-			type: 'collection',
-			placeholder: 'Add Filter',
-			default: {},
-			options: [
-				{
-					displayName: 'Chat Type',
-					name: 'chatType',
-					type: 'multiOptions',
-					options: [
-						{ name: 'Private', value: 'private' },
-						{ name: 'Group', value: 'group' },
-						{ name: 'Channel', value: 'channel' },
-						{ name: 'Bot', value: 'bot' },
-					],
-					default: [],
-				},
-				{ displayName: 'Chat ID', name: 'chatId', type: 'string', default: '' },
-				{
-					displayName: 'User IDs (comma)',
-					name: 'userIds',
-					type: 'string',
-					default: '',
-				},
-				{
-					displayName: 'Text Pattern (Regex)',
-					name: 'textPattern',
-					type: 'string',
-					default: '',
-				},
-				{
-					displayName: 'Commands (comma)',
-					name: 'commands',
-					type: 'string',
-					default: '',
-				},
-			],
-			displayOptions: {
-				show: {
-					mode: ['trigger'],
-					triggerType: ['message'],
-				},
-			},
-		},
-		{
-			displayName: 'Update Handlers',
-			name: 'updateHandlers',
-			type: 'multiOptions',
-			options: [
-				{ name: 'Chat Member Updated', value: 'on_chat_member_updated' },
-				{ name: 'Callback Query', value: 'on_callback_query' },
-				{ name: 'Inline Query', value: 'on_inline_query' },
-				{ name: 'Chosen Inline Result', value: 'on_chosen_inline_result' },
-				{ name: 'User Status', value: 'on_user_status' },
-				{ name: 'Poll', value: 'on_poll' },
-				{ name: 'Poll Answer', value: 'on_poll_answer' },
-				{ name: 'Chat Join Request', value: 'on_chat_join_request' },
-			],
-			default: ['on_callback_query'],
-			displayOptions: {
-				show: {
-					mode: ['trigger'],
-					triggerType: ['update'],
-				},
-			},
-		},
-		{
-			displayName: 'Polling Method',
-			name: 'pollingMethod',
-			type: 'options',
-			options: [{ name: 'Chat History', value: 'get_chat_history' }],
-			default: 'get_chat_history',
-			displayOptions: {
-				show: {
-					mode: ['trigger'],
-					triggerType: ['polling'],
-				},
-			},
-		},
-		{
-			displayName: 'Polling Interval (seconds)',
-			name: 'pollingInterval',
-			type: 'number',
-			default: 60,
-			description: 'Minimum 10 seconds',
-			displayOptions: {
-				show: {
-					mode: ['trigger'],
-					triggerType: ['polling'],
-				},
-			},
-		},
-		{
-			displayName: 'Polling Config',
-			name: 'pollingConfig',
-			type: 'collection',
-			default: {},
-			options: [
-				{ displayName: 'Chat ID', name: 'chatId', type: 'string', default: '' },
-				{ displayName: 'Limit', name: 'limit', type: 'number', default: 100 },
-				{
-					displayName: 'Only New',
-					name: 'onlyNew',
-					type: 'boolean',
-					default: true,
-				},
-			],
-			displayOptions: {
-				show: {
-					mode: ['trigger'],
-					triggerType: ['polling'],
-				},
-			},
-		},
-
-		// Execute mode properties
 		{
 			displayName: 'Resource',
 			name: 'resource',
@@ -203,11 +38,6 @@ export const nodeDescription: INodeTypeDescription = {
 			],
 			default: 'messages',
 			description: 'Resource to operate on',
-			displayOptions: {
-				show: {
-					mode: ['execute'],
-				},
-			},
 		},
 		// Всі інші операції також повинні мати displayOptions з mode: ['execute']
 		{
@@ -332,7 +162,6 @@ export const nodeDescription: INodeTypeDescription = {
 			default: 'send_message',
 			displayOptions: {
 				show: {
-					mode: ['execute'],
 					resource: ['messages'],
 				},
 			},
@@ -380,7 +209,6 @@ export const nodeDescription: INodeTypeDescription = {
 			default: 'get_chat',
 			displayOptions: {
 				show: {
-					mode: ['execute'],
 					resource: ['chats'],
 				},
 			},
@@ -411,7 +239,6 @@ export const nodeDescription: INodeTypeDescription = {
 			default: 'get_me',
 			displayOptions: {
 				show: {
-					mode: ['execute'],
 					resource: ['users'],
 				},
 			},
@@ -442,7 +269,6 @@ export const nodeDescription: INodeTypeDescription = {
 			default: 'get_contacts',
 			displayOptions: {
 				show: {
-					mode: ['execute'],
 					resource: ['contacts'],
 				},
 			},
@@ -473,7 +299,6 @@ export const nodeDescription: INodeTypeDescription = {
 			default: 'get_bot_commands',
 			displayOptions: {
 				show: {
-					mode: ['execute'],
 					resource: ['bot'],
 				},
 			},
@@ -493,7 +318,6 @@ export const nodeDescription: INodeTypeDescription = {
 			default: 'get_stories',
 			displayOptions: {
 				show: {
-					mode: ['execute'],
 					resource: ['stories'],
 				},
 			},
@@ -513,7 +337,6 @@ export const nodeDescription: INodeTypeDescription = {
 			default: 'get_reactions',
 			displayOptions: {
 				show: {
-					mode: ['execute'],
 					resource: ['reactions'],
 				},
 			},
@@ -539,7 +362,6 @@ export const nodeDescription: INodeTypeDescription = {
 			default: 'raw_api',
 			displayOptions: {
 				show: {
-					mode: ['execute'],
 					resource: ['advanced'],
 				},
 			},
@@ -570,7 +392,6 @@ export const nodeDescription: INodeTypeDescription = {
 			],
 			displayOptions: {
 				show: {
-					mode: ['execute'],
 					resource: ['invite_links'],
 				},
 			},
@@ -601,7 +422,6 @@ export const nodeDescription: INodeTypeDescription = {
 			default: 'enable_cloud_password',
 			displayOptions: {
 				show: {
-					mode: ['execute'],
 					resource: ['password'],
 				},
 			},
@@ -627,7 +447,6 @@ export const nodeDescription: INodeTypeDescription = {
 			default: 'set_parse_mode',
 			displayOptions: {
 				show: {
-					mode: ['execute'],
 					resource: ['utilities'],
 				},
 			},
@@ -642,7 +461,6 @@ export const nodeDescription: INodeTypeDescription = {
 			description: 'Unique identifier for the target chat',
 			displayOptions: {
 				show: {
-					mode: ['execute'],
 					resource: ['messages'],
 					operation: ['send_message'],
 				},
@@ -657,7 +475,6 @@ export const nodeDescription: INodeTypeDescription = {
 			description: 'Text of the message to be sent',
 			displayOptions: {
 				show: {
-					mode: ['execute'],
 					resource: ['messages'],
 					operation: ['send_message'],
 				},
