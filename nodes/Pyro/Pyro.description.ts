@@ -10,7 +10,7 @@ export const nodeDescription: INodeTypeDescription = {
 	defaults: {
 		name: 'Pyro',
 	},
-	inputs: ['main' as NodeConnectionType],
+	inputs: [],
 	outputs: ['main' as NodeConnectionType],
 	credentials: [
 		{
