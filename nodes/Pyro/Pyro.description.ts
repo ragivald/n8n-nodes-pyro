@@ -24,7 +24,7 @@ export const nodeDescription: INodeTypeDescription = {
 			name: 'resource',
 			type: 'options',
 			options: [
-				{ name: 'Messages', value: 'messages' },
+				{ name: 'Messages2', value: 'messages' },
 				{ name: 'Chats', value: 'chats' },
 				{ name: 'Users', value: 'users' },
 				{ name: 'Contacts', value: 'contacts' },
