@@ -34,34 +34,34 @@ export class Pyrogram implements INodeType {
 			// Route based on resource and operation
 			if (resource === 'messages') {
 				endpoint = this.getMessagesEndpoint(operation, i, baseCredentials)
-				body = this.getMessagesBody(operation, i, baseCredentials)
+				body = this.getMessagesBody(operation, i, baseCredentials, this)
 			} else if (resource === 'chats') {
 				endpoint = this.getChatsEndpoint(operation, i, baseCredentials)
-				body = this.getChatsBody(operation, i, baseCredentials)
+				body = this.getChatsBody(operation, i, baseCredentials, this)
 			} else if (resource === 'users') {
 				endpoint = this.getUsersEndpoint(operation, i, baseCredentials)
-				body = this.getUsersBody(operation, i, baseCredentials)
+				body = this.getUsersBody(operation, i, baseCredentials, this)
 			} else if (resource === 'contacts') {
 				endpoint = this.getContactsEndpoint(operation, i, baseCredentials)
-				body = this.getContactsBody(operation, i, baseCredentials)
+				body = this.getContactsBody(operation, i, baseCredentials, this)
 			} else if (resource === 'invite_links') {
 				endpoint = this.getInviteLinksEndpoint(operation, i, baseCredentials)
-				body = this.getInviteLinksBody(operation, i, baseCredentials)
+				body = this.getInviteLinksBody(operation, i, baseCredentials, this)
 			} else if (resource === 'password') {
 				endpoint = this.getPasswordEndpoint(operation, i, baseCredentials)
-				body = this.getPasswordBody(operation, i, baseCredentials)
+				body = this.getPasswordBody(operation, i, baseCredentials, this)
 			} else if (resource === 'bot') {
 				endpoint = this.getBotEndpoint(operation, i, baseCredentials)
-				body = this.getBotBody(operation, i, baseCredentials)
+				body = this.getBotBody(operation, i, baseCredentials, this)
 			} else if (resource === 'utilities') {
 				endpoint = this.getUtilitiesEndpoint(operation, i, baseCredentials)
-				body = this.getUtilitiesBody(operation, i, baseCredentials)
+				body = this.getUtilitiesBody(operation, i, baseCredentials, this)
 			} else if (resource === 'advanced') {
 				endpoint = this.getAdvancedEndpoint(operation, i, baseCredentials)
-				body = this.getAdvancedBody(operation, i, baseCredentials)
+				body = this.getAdvancedBody(operation, i, baseCredentials, this)
 			} else if (resource === 'stories') {
 				endpoint = this.getStoriesEndpoint(operation, i, baseCredentials)
-				body = this.getStoriesBody(operation, i, baseCredentials)
+				body = this.getStoriesBody(operation, i, baseCredentials, this)
 			} else {
 				throw new Error(`Unsupported resource: ${resource}`)
 			}
@@ -171,32 +171,37 @@ export class Pyrogram implements INodeType {
 	private getMessagesBody(
 		operation: string,
 		itemIndex: number,
-		baseCredentials: any
+		baseCredentials: any,
+		executionContext: IExecuteFunctions
 	): any {
-		const that = this as any
 		switch (operation) {
 			case 'send_message':
 				return {
 					...baseCredentials,
 					chat_id:
-						parseInt(that.getNodeParameter('chat_id', itemIndex)) ||
-						that.getNodeParameter('chat_id', itemIndex),
-					text: that.getNodeParameter('text', itemIndex),
+						parseInt(
+							executionContext.getNodeParameter('chat_id', itemIndex) as string
+						) || executionContext.getNodeParameter('chat_id', itemIndex),
+					text: executionContext.getNodeParameter('text', itemIndex),
 					parse_mode:
-						that.getNodeParameter('parse_mode', itemIndex, '') || undefined,
-					disable_notification: that.getNodeParameter(
+						executionContext.getNodeParameter('parse_mode', itemIndex, '') ||
+						undefined,
+					disable_notification: executionContext.getNodeParameter(
 						'disable_notification',
 						itemIndex,
 						false
 					),
-					disable_web_page_preview: that.getNodeParameter(
+					disable_web_page_preview: executionContext.getNodeParameter(
 						'disable_web_page_preview',
 						itemIndex,
 						false
 					),
 					reply_to_message_id:
-						that.getNodeParameter('reply_to_message_id', itemIndex, 0) ||
-						undefined,
+						executionContext.getNodeParameter(
+							'reply_to_message_id',
+							itemIndex,
+							0
+						) || undefined,
 				}
 			default:
 				return baseCredentials
@@ -251,7 +256,8 @@ export class Pyrogram implements INodeType {
 	private getChatsBody(
 		operation: string,
 		itemIndex: number,
-		baseCredentials: any
+		baseCredentials: any,
+		executionContext: IExecuteFunctions
 	): any {
 		return baseCredentials
 	}
@@ -286,7 +292,8 @@ export class Pyrogram implements INodeType {
 	private getUsersBody(
 		operation: string,
 		itemIndex: number,
-		baseCredentials: any
+		baseCredentials: any,
+		executionContext: IExecuteFunctions
 	): any {
 		return baseCredentials
 	}
@@ -313,7 +320,8 @@ export class Pyrogram implements INodeType {
 	private getContactsBody(
 		operation: string,
 		itemIndex: number,
-		baseCredentials: any
+		baseCredentials: any,
+		executionContext: IExecuteFunctions
 	): any {
 		return baseCredentials
 	}
@@ -342,7 +350,8 @@ export class Pyrogram implements INodeType {
 	private getInviteLinksBody(
 		operation: string,
 		itemIndex: number,
-		baseCredentials: any
+		baseCredentials: any,
+		executionContext: IExecuteFunctions
 	): any {
 		return baseCredentials
 	}
@@ -367,7 +376,8 @@ export class Pyrogram implements INodeType {
 	private getPasswordBody(
 		operation: string,
 		itemIndex: number,
-		baseCredentials: any
+		baseCredentials: any,
+		executionContext: IExecuteFunctions
 	): any {
 		return baseCredentials
 	}
@@ -396,7 +406,8 @@ export class Pyrogram implements INodeType {
 	private getBotBody(
 		operation: string,
 		itemIndex: number,
-		baseCredentials: any
+		baseCredentials: any,
+		executionContext: IExecuteFunctions
 	): any {
 		return baseCredentials
 	}
@@ -423,7 +434,8 @@ export class Pyrogram implements INodeType {
 	private getUtilitiesBody(
 		operation: string,
 		itemIndex: number,
-		baseCredentials: any
+		baseCredentials: any,
+		executionContext: IExecuteFunctions
 	): any {
 		return baseCredentials
 	}
@@ -448,7 +460,8 @@ export class Pyrogram implements INodeType {
 	private getAdvancedBody(
 		operation: string,
 		itemIndex: number,
-		baseCredentials: any
+		baseCredentials: any,
+		executionContext: IExecuteFunctions
 	): any {
 		return baseCredentials
 	}
@@ -473,7 +486,8 @@ export class Pyrogram implements INodeType {
 	private getStoriesBody(
 		operation: string,
 		itemIndex: number,
-		baseCredentials: any
+		baseCredentials: any,
+		executionContext: IExecuteFunctions
 	): any {
 		return baseCredentials
 	}
