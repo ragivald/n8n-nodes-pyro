@@ -1,14 +1,15 @@
 import { INodeTypeDescription, NodeConnectionType } from 'n8n-workflow'
 
 export const nodeDescription: INodeTypeDescription = {
-	displayName: 'Pyro',
-	name: 'pyro',
-	icon: 'file:pyro.svg',
+	displayName: 'Pyrogram',
+	name: 'pyrogram',
+	icon: 'file:pyrogram.svg',
 	group: ['transform'],
 	version: 1,
-	description: 'Execute Telegram operations via Pyro FastAPI backend',
+	description: 'Interact with Telegram using Pyrogram MTProto API',
+	subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 	defaults: {
-		name: 'Pyro',
+		name: 'Pyrogram',
 	},
 	inputs: ['main' as NodeConnectionType],
 	outputs: ['main' as NodeConnectionType],
@@ -24,22 +25,21 @@ export const nodeDescription: INodeTypeDescription = {
 			name: 'resource',
 			type: 'options',
 			options: [
-				{ name: 'Messages2', value: 'messages' },
+				{ name: 'Messages', value: 'messages' },
 				{ name: 'Chats', value: 'chats' },
 				{ name: 'Users', value: 'users' },
 				{ name: 'Contacts', value: 'contacts' },
-				{ name: 'Bot', value: 'bot' },
-				{ name: 'Stories', value: 'stories' },
-				{ name: 'Reactions', value: 'reactions' },
-				{ name: 'Advanced', value: 'advanced' },
 				{ name: 'Invite Links', value: 'invite_links' },
 				{ name: 'Password', value: 'password' },
+				{ name: 'Bot', value: 'bot' },
 				{ name: 'Utilities', value: 'utilities' },
+				{ name: 'Advanced', value: 'advanced' },
+				{ name: 'Stories', value: 'stories' },
 			],
 			default: 'messages',
 			description: 'Resource to operate on',
 		},
-		// Всі інші операції також повинні мати displayOptions з mode: ['execute']
+		// Messages operations
 		{
 			displayName: 'Operation',
 			name: 'operation',
@@ -57,6 +57,11 @@ export const nodeDescription: INodeTypeDescription = {
 					description: 'Send a photo',
 				},
 				{
+					name: 'Send Video',
+					value: 'send_video',
+					description: 'Send a video',
+				},
+				{
 					name: 'Send Audio',
 					value: 'send_audio',
 					description: 'Send an audio file',
@@ -70,11 +75,6 @@ export const nodeDescription: INodeTypeDescription = {
 					name: 'Send Voice',
 					value: 'send_voice',
 					description: 'Send a voice message',
-				},
-				{
-					name: 'Send Video',
-					value: 'send_video',
-					description: 'Send a video',
 				},
 				{
 					name: 'Send Video Note',
@@ -106,17 +106,30 @@ export const nodeDescription: INodeTypeDescription = {
 					value: 'send_contact',
 					description: 'Send a contact',
 				},
-				{ name: 'Send Poll', value: 'send_poll', description: 'Send a poll' },
-				{ name: 'Send Dice', value: 'send_dice', description: 'Send a dice' },
 				{
-					name: 'Forward Message',
-					value: 'forward_message',
-					description: 'Forward a message',
+					name: 'Send Poll',
+					value: 'send_poll',
+					description: 'Send a poll',
 				},
 				{
-					name: 'Copy Message',
-					value: 'copy_message',
-					description: 'Copy a message',
+					name: 'Send Dice',
+					value: 'send_dice',
+					description: 'Send a dice',
+				},
+				{
+					name: 'Send Media Group',
+					value: 'send_media_group',
+					description: 'Send multiple photos/videos as an album',
+				},
+				{
+					name: 'Forward Messages',
+					value: 'forward_messages',
+					description: 'Forward messages',
+				},
+				{
+					name: 'Copy Messages',
+					value: 'copy_messages',
+					description: 'Copy messages',
 				},
 				{
 					name: 'Edit Message Text',
@@ -134,9 +147,9 @@ export const nodeDescription: INodeTypeDescription = {
 					description: 'Edit message media',
 				},
 				{
-					name: 'Delete Message',
-					value: 'delete_message',
-					description: 'Delete a message',
+					name: 'Delete Messages',
+					value: 'delete_messages',
+					description: 'Delete messages',
 				},
 				{
 					name: 'Get Messages',
@@ -144,8 +157,8 @@ export const nodeDescription: INodeTypeDescription = {
 					description: 'Get messages by ID',
 				},
 				{
-					name: 'Get Message History',
-					value: 'get_message_history',
+					name: 'Get Chat History',
+					value: 'get_chat_history',
 					description: 'Get chat message history',
 				},
 				{
@@ -157,6 +170,11 @@ export const nodeDescription: INodeTypeDescription = {
 					name: 'Download Media',
 					value: 'download_media',
 					description: 'Download media from message',
+				},
+				{
+					name: 'Send Chat Action',
+					value: 'send_chat_action',
+					description: 'Send typing/uploading action',
 				},
 			],
 			default: 'send_message',
@@ -173,6 +191,12 @@ export const nodeDescription: INodeTypeDescription = {
 			type: 'options',
 			noDataExpression: true,
 			options: [
+				{ name: 'Join Chat', value: 'join_chat', description: 'Join a chat' },
+				{
+					name: 'Leave Chat',
+					value: 'leave_chat',
+					description: 'Leave a chat',
+				},
 				{ name: 'Get Chat', value: 'get_chat', description: 'Get chat info' },
 				{
 					name: 'Get Chat Members',
@@ -185,15 +209,34 @@ export const nodeDescription: INodeTypeDescription = {
 					description: 'Get info about a chat member',
 				},
 				{
-					name: 'Get Chat Administrators',
-					value: 'get_chat_administrators',
-					description: 'Get chat admins',
+					name: 'Ban Chat Member',
+					value: 'ban_chat_member',
+					description: 'Ban a chat member',
 				},
-				{ name: 'Leave Chat', value: 'leave_chat', description: 'Leave chat' },
+				{
+					name: 'Unban Chat Member',
+					value: 'unban_chat_member',
+					description: 'Unban a chat member',
+				},
+				{
+					name: 'Restrict Chat Member',
+					value: 'restrict_chat_member',
+					description: 'Restrict a chat member',
+				},
+				{
+					name: 'Promote Chat Member',
+					value: 'promote_chat_member',
+					description: 'Promote a chat member',
+				},
 				{
 					name: 'Set Chat Title',
 					value: 'set_chat_title',
 					description: 'Set chat title',
+				},
+				{
+					name: 'Set Chat Description',
+					value: 'set_chat_description',
+					description: 'Set chat description',
 				},
 				{
 					name: 'Set Chat Photo',
@@ -204,6 +247,26 @@ export const nodeDescription: INodeTypeDescription = {
 					name: 'Delete Chat Photo',
 					value: 'delete_chat_photo',
 					description: 'Delete chat photo',
+				},
+				{
+					name: 'Pin Chat Message',
+					value: 'pin_chat_message',
+					description: 'Pin a message in chat',
+				},
+				{
+					name: 'Unpin Chat Message',
+					value: 'unpin_chat_message',
+					description: 'Unpin a message in chat',
+				},
+				{
+					name: 'Create Group',
+					value: 'create_group',
+					description: 'Create a group',
+				},
+				{
+					name: 'Create Channel',
+					value: 'create_channel',
+					description: 'Create a channel',
 				},
 			],
 			default: 'get_chat',
@@ -231,9 +294,34 @@ export const nodeDescription: INodeTypeDescription = {
 					description: 'Get info about users',
 				},
 				{
-					name: 'Get User Profile Photos',
-					value: 'get_user_profile_photos',
+					name: 'Get Chat Photos',
+					value: 'get_chat_photos',
 					description: 'Get user profile photos',
+				},
+				{
+					name: 'Set Profile Photo',
+					value: 'set_profile_photo',
+					description: 'Set profile photo',
+				},
+				{
+					name: 'Delete Profile Photos',
+					value: 'delete_profile_photos',
+					description: 'Delete profile photos',
+				},
+				{
+					name: 'Update Profile',
+					value: 'update_profile',
+					description: 'Update profile information',
+				},
+				{
+					name: 'Block User',
+					value: 'block_user',
+					description: 'Block a user',
+				},
+				{
+					name: 'Unblock User',
+					value: 'unblock_user',
+					description: 'Unblock a user',
 				},
 			],
 			default: 'get_me',
@@ -243,7 +331,7 @@ export const nodeDescription: INodeTypeDescription = {
 				},
 			},
 		},
-		// Contacts operations
+		// Contact operations
 		{
 			displayName: 'Operation',
 			name: 'operation',
@@ -265,104 +353,16 @@ export const nodeDescription: INodeTypeDescription = {
 					value: 'delete_contacts',
 					description: 'Delete contacts',
 				},
+				{
+					name: 'Import Contacts',
+					value: 'import_contacts',
+					description: 'Import contacts',
+				},
 			],
 			default: 'get_contacts',
 			displayOptions: {
 				show: {
 					resource: ['contacts'],
-				},
-			},
-		},
-		// Bot operations
-		{
-			displayName: 'Operation',
-			name: 'operation',
-			type: 'options',
-			noDataExpression: true,
-			options: [
-				{
-					name: 'Get Bot Commands',
-					value: 'get_bot_commands',
-					description: 'Get bot commands',
-				},
-				{
-					name: 'Set Bot Commands',
-					value: 'set_bot_commands',
-					description: 'Set bot commands',
-				},
-				{
-					name: 'Delete Bot Commands',
-					value: 'delete_bot_commands',
-					description: 'Delete bot commands',
-				},
-			],
-			default: 'get_bot_commands',
-			displayOptions: {
-				show: {
-					resource: ['bot'],
-				},
-			},
-		},
-		// Stories operations
-		{
-			displayName: 'Operation',
-			name: 'operation',
-			type: 'options',
-			options: [
-				{
-					name: 'Get Stories',
-					value: 'get_stories',
-					description: 'Get stories',
-				},
-			],
-			default: 'get_stories',
-			displayOptions: {
-				show: {
-					resource: ['stories'],
-				},
-			},
-		},
-		// Reactions operations
-		{
-			displayName: 'Operation',
-			name: 'operation',
-			type: 'options',
-			options: [
-				{
-					name: 'Get Reactions',
-					value: 'get_reactions',
-					description: 'Get reactions',
-				},
-			],
-			default: 'get_reactions',
-			displayOptions: {
-				show: {
-					resource: ['reactions'],
-				},
-			},
-		},
-		// Advanced operations
-		{
-			displayName: 'Operation',
-			name: 'operation',
-			type: 'options',
-			noDataExpression: true,
-			options: [
-				{
-					name: 'Raw API',
-					value: 'raw_api',
-					description: 'Call any Pyrogram API method',
-				},
-				{
-					name: 'Get Session String',
-					value: 'get_session_string',
-					description: 'Get Pyrogram session string (user or bot)',
-				},
-			],
-			default: 'raw_api',
-			displayOptions: {
-				show: {
-					resource: ['advanced'],
 				},
 			},
 		},
@@ -372,7 +372,6 @@ export const nodeDescription: INodeTypeDescription = {
 			name: 'operation',
 			type: 'options',
 			noDataExpression: true,
-			default: 'get_chat_invite_link_info',
 			options: [
 				{
 					name: 'Get Chat Invite Link Info',
@@ -389,7 +388,18 @@ export const nodeDescription: INodeTypeDescription = {
 					value: 'create_chat_invite_link',
 					description: 'Create a new chat invite link',
 				},
+				{
+					name: 'Edit Chat Invite Link',
+					value: 'edit_chat_invite_link',
+					description: 'Edit a chat invite link',
+				},
+				{
+					name: 'Revoke Chat Invite Link',
+					value: 'revoke_chat_invite_link',
+					description: 'Revoke a chat invite link',
+				},
 			],
+			default: 'get_chat_invite_link_info',
 			displayOptions: {
 				show: {
 					resource: ['invite_links'],
@@ -426,6 +436,46 @@ export const nodeDescription: INodeTypeDescription = {
 				},
 			},
 		},
+		// Bot operations
+		{
+			displayName: 'Operation',
+			name: 'operation',
+			type: 'options',
+			noDataExpression: true,
+			options: [
+				{
+					name: 'Set Bot Commands',
+					value: 'set_bot_commands',
+					description: 'Set bot commands',
+				},
+				{
+					name: 'Get Bot Commands',
+					value: 'get_bot_commands',
+					description: 'Get bot commands',
+				},
+				{
+					name: 'Delete Bot Commands',
+					value: 'delete_bot_commands',
+					description: 'Delete bot commands',
+				},
+				{
+					name: 'Answer Callback Query',
+					value: 'answer_callback_query',
+					description: 'Answer callback query',
+				},
+				{
+					name: 'Answer Inline Query',
+					value: 'answer_inline_query',
+					description: 'Answer inline query',
+				},
+			],
+			default: 'get_bot_commands',
+			displayOptions: {
+				show: {
+					resource: ['bot'],
+				},
+			},
+		},
 		// Utilities operations
 		{
 			displayName: 'Operation',
@@ -434,20 +484,90 @@ export const nodeDescription: INodeTypeDescription = {
 			noDataExpression: true,
 			options: [
 				{
+					name: 'Start',
+					value: 'start',
+					description: 'Start the client',
+				},
+				{
+					name: 'Stop',
+					value: 'stop',
+					description: 'Stop the client',
+				},
+				{
+					name: 'Export Session String',
+					value: 'export_session_string',
+					description: 'Export current session as string',
+				},
+				{
 					name: 'Set Parse Mode',
 					value: 'set_parse_mode',
 					description: 'Set parse mode',
 				},
-				{
-					name: 'Compose',
-					value: 'compose',
-					description: 'Compose clients',
-				},
 			],
-			default: 'set_parse_mode',
+			default: 'start',
 			displayOptions: {
 				show: {
 					resource: ['utilities'],
+				},
+			},
+		},
+		// Advanced operations
+		{
+			displayName: 'Operation',
+			name: 'operation',
+			type: 'options',
+			noDataExpression: true,
+			options: [
+				{
+					name: 'Invoke',
+					value: 'invoke',
+					description: 'Execute raw MTProto API functions',
+				},
+				{
+					name: 'Resolve Peer',
+					value: 'resolve_peer',
+					description: 'Get InputPeer from known peer ID',
+				},
+				{
+					name: 'Save File',
+					value: 'save_file',
+					description: 'Upload file to Telegram servers',
+				},
+			],
+			default: 'invoke',
+			displayOptions: {
+				show: {
+					resource: ['advanced'],
+				},
+			},
+		},
+		// Stories operations
+		{
+			displayName: 'Operation',
+			name: 'operation',
+			type: 'options',
+			noDataExpression: true,
+			options: [
+				{
+					name: 'Send Story',
+					value: 'send_story',
+					description: 'Send a story',
+				},
+				{
+					name: 'Get Stories',
+					value: 'get_stories',
+					description: 'Get stories',
+				},
+				{
+					name: 'Delete Stories',
+					value: 'delete_stories',
+					description: 'Delete stories',
+				},
+			],
+			default: 'get_stories',
+			displayOptions: {
+				show: {
+					resource: ['stories'],
 				},
 			},
 		},
@@ -480,6 +600,62 @@ export const nodeDescription: INodeTypeDescription = {
 				},
 			},
 		},
-		// ... продовжити для всіх інших параметрів
+		{
+			displayName: 'Parse Mode',
+			name: 'parse_mode',
+			type: 'options',
+			options: [
+				{ name: 'Markdown', value: 'markdown' },
+				{ name: 'HTML', value: 'html' },
+				{ name: 'None', value: '' },
+			],
+			default: '',
+			description: 'Mode for parsing entities in the message text',
+			displayOptions: {
+				show: {
+					resource: ['messages'],
+					operation: ['send_message'],
+				},
+			},
+		},
+		{
+			displayName: 'Disable Notification',
+			name: 'disable_notification',
+			type: 'boolean',
+			default: false,
+			description: 'Sends the message silently',
+			displayOptions: {
+				show: {
+					resource: ['messages'],
+					operation: ['send_message'],
+				},
+			},
+		},
+		{
+			displayName: 'Disable Web Page Preview',
+			name: 'disable_web_page_preview',
+			type: 'boolean',
+			default: false,
+			description: 'Disables link previews for links in this message',
+			displayOptions: {
+				show: {
+					resource: ['messages'],
+					operation: ['send_message'],
+				},
+			},
+		},
+		{
+			displayName: 'Reply to Message ID',
+			name: 'reply_to_message_id',
+			type: 'number',
+			default: 0,
+			description: 'ID of the original message you want to reply to',
+			displayOptions: {
+				show: {
+					resource: ['messages'],
+					operation: ['send_message'],
+				},
+			},
+		},
 	],
 }

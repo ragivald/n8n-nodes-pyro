@@ -1,58 +1,19 @@
 {
-  "name": "n8n-nodes-pyro",
-  "version": "0.1.0",
-  "description": "n8n community node for Pyro FastAPI backend integration",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "keywords": [
-    "n8n-community-node-package",
-    "n8n",
-    "telegram",
-    "pyrogram",
-    "pyro"
-  ],
-  "files": [
-    "dist"
-  ],
-  "n8n": {
-    "n8nNodesApiVersion": 1,
-    "credentials": [
-      "dist/credentials/PyroApi.credentials.js"
-    ],
-    "nodes": [
-      "dist/nodes/Pyro/Pyro.node.js",
-      "dist/nodes/PyroTrigger/PyroTrigger.node.js"
-    ]
-  },
-  "scripts": {
-    "build": "tsc",
-    "postbuild": "node ./scripts/copy-icon.js",
-    "dev": "tsc --watch",
-    "format": "prettier nodes credentials --write",
-    "lint": "eslint nodes credentials package.json",
-    "lintfix": "eslint nodes credentials package.json --fix",
-    "prepublishOnly": "npm run build && npm run lint",
-    "test": "jest"
-  },
-  "author": {
-    "name": "Your Name",
-    "email": "your.email@example.com"
-  },
-  "license": "MIT",
-  "homepage": "https://github.com/yourusername/n8n-nodes-pyro",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yourusername/n8n-nodes-pyro.git"
-  },
-  "engines": {
-    "node": ">=16.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^18.0.0",
-    "typescript": "^4.9.0"
-  },
-  "peerDependencies": {
-    "n8n-workflow": "*"
-  },
-  "dependencies": {}
+	"name": "n8n-nodes-pyro",
+	"version": "0.1.0",
+	"description": "n8n community node for Pyro FastAPI backend integration",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsc"
+	},
+	"author": "",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^18.0.0",
+		"typescript": "^4.0.0"
+	},
+	"dependencies": {
+		"n8n-workflow": "^1.0.0"
+	}
 }

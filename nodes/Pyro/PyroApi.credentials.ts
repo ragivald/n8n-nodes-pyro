@@ -47,12 +47,5 @@ export class PyroApi implements ICredentialType {
 			default: '',
 			description: 'Telegram bot token (optional)',
 		},
-		{
-			displayName: 'Trigger Auth Token',
-			name: 'triggerAuthToken',
-			type: 'string',
-			default: '',
-			description: 'Auth token for trigger endpoints (X-Trigger-Auth header)',
-		},
 	]
 }

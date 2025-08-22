@@ -21,9 +21,10 @@ export class PyroTrigger implements INodeType {
 		// Optional auth check
 		try {
 			const credentials = await this.getCredentials('pyroApi')
-			const expected = (credentials as any)?.triggerAuthToken
+			const expected = (credentials as any)?.webhookSecret
 			if (expected) {
-				const provided = headerData['x-trigger-auth'] || headerData['X-Trigger-Auth']
+				const provided =
+					headerData['x-webhook-secret'] || headerData['X-Webhook-Secret']
 				if (!provided || provided !== expected) {
 					return {
 						workflowData: [],
@@ -47,56 +48,26 @@ export class PyroTrigger implements INodeType {
 		const webhookUrl = (this as any).getNodeWebhookUrl('default')
 		const credentials = await this.getCredentials('pyroApi')
 		const baseUrl = credentials.baseUrl as string
-		const triggerType = (this.getNodeParameter('triggerType', 0) as string) || 'message'
+		const updateTypes = (this.getNodeParameter(
+			'updateTypes',
+			0
+		) as string[]) || ['message']
+		const filters = (this.getNodeParameter('filters', 0) as any) || {}
 
 		const payload: any = {
-			triggerType,
+			updateTypes,
+			filters,
 			webhookUrl,
 			api_id: credentials.apiId,
 			api_hash: credentials.apiHash,
 			session_string: credentials.sessionString,
+			phone_number: credentials.phoneNumber,
 			bot_token: credentials.botToken,
 		}
 
-		// Add specific parameters for each trigger type
-		if (triggerType === 'message') {
-			try {
-				const mf = this.getNodeParameter('messageFilters', 0) as any
-				payload.filters = {
-					chatType: mf?.chatType,
-					chatId: mf?.chatId,
-					userIds: mf?.userIds,
-					textPattern: mf?.textPattern,
-					commands: mf?.commands,
-				}
-			} catch (e) {
-				payload.filters = {}
-			}
-		}
-
-		if (triggerType === 'update') {
-			try {
-				payload.updateHandlers = this.getNodeParameter('updateHandlers', 0)
-			} catch (e) {
-				payload.updateHandlers = ['on_callback_query']
-			}
-		}
-
-		if (triggerType === 'polling') {
-			try {
-				payload.method = this.getNodeParameter('pollingMethod', 0)
-				payload.config = this.getNodeParameter('pollingConfig', 0)
-				payload.pollingInterval = this.getNodeParameter('pollingInterval', 0)
-			} catch (e) {
-				payload.method = 'get_chat_history'
-				payload.config = {}
-				payload.pollingInterval = 60
-			}
-		}
-
 		const headers: any = { 'Content-Type': 'application/json' }
-		if ((credentials as any).triggerAuthToken) {
-			headers['X-Trigger-Auth'] = (credentials as any).triggerAuthToken
+		if ((credentials as any).webhookSecret) {
+			headers['X-Webhook-Secret'] = (credentials as any).webhookSecret
 		}
 
 		let triggerId: string | undefined
@@ -112,9 +83,9 @@ export class PyroTrigger implements INodeType {
 				}
 				try {
 					await this.helpers.request(options)
-					console.log('Removed Pyro trigger', triggerId)
+					console.log('Removed Pyrogram trigger', triggerId)
 				} catch (err) {
-					console.error('Failed to remove Pyro trigger', err)
+					console.error('Failed to remove Pyrogram trigger', err)
 				}
 			}
 		}
@@ -129,16 +100,16 @@ export class PyroTrigger implements INodeType {
 		}
 
 		try {
-			console.log('Registering Pyro trigger', {
+			console.log('Registering Pyrogram trigger', {
 				baseUrl,
-				triggerType,
+				updateTypes,
 				webhookUrl,
 			})
 			const response = await this.helpers.request(options)
 			triggerId = response.trigger_id
-			console.log('Pyro trigger registered', triggerId)
+			console.log('Pyrogram trigger registered', triggerId)
 		} catch (err) {
-			console.error('Failed to register Pyro trigger', err)
+			console.error('Failed to register Pyrogram trigger', err)
 			throw err
 		}
 
