@@ -9,3 +9,4 @@ export const credentials = [PyroApi]
 
 // Export for typing
 export { Pyro, PyroTrigger, PyroApi }
+export { Pyro as Pyrogram } // Backwards compatibility alias
