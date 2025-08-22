@@ -273,7 +273,7 @@ export class Pyrogram implements INodeType {
 			case 'get_users':
 				return '/get_users'
 			case 'get_chat_photos':
-				return '/get_chat_photos'
+				return '/get_user_profile_photos'
 			case 'set_profile_photo':
 				return '/set_profile_photo'
 			case 'delete_profile_photos':
@@ -447,7 +447,7 @@ export class Pyrogram implements INodeType {
 	): string {
 		switch (operation) {
 			case 'invoke':
-				return '/invoke'
+				return '/raw_api'
 			case 'resolve_peer':
 				return '/resolve_peer'
 			case 'save_file':
