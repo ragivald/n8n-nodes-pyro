@@ -94,7 +94,7 @@ async def send_message(req: SendMessageRequest):
     msg = await client.send_message(
         chat_id=req.chat_id,
         text=req.text,
-        parse_mode=req.parse_mode,
+        parse_mode=req.parse_mode if req.parse_mode else None,
         disable_notification=req.disable_notification
     )
     await client.stop()
@@ -1748,3 +1748,82 @@ async def raw_api(req: RawApiRequest):
         return {"error": str(e)}
     await client.stop()
     return {"result": str(result)}
+
+# Add missing endpoints that n8n node might call
+@app.post("/send_chat_action")
+async def send_chat_action(req: dict):
+    """Send chat action (typing, uploading, etc.)"""
+    if req.get('session_string'):
+        client = Client(
+            name="user",
+            api_id=req['api_id'],
+            api_hash=req['api_hash'],
+            session_string=req['session_string'],
+            in_memory=True
+        )
+    elif req.get('bot_token'):
+        client = Client(
+            name="bot",
+            api_id=req['api_id'],
+            api_hash=req['api_hash'],
+            bot_token=req['bot_token'],
+            in_memory=True
+        )
+    else:
+        return {"error": "Provide session_string or bot_token"}
+    
+    await client.start()
+    result = await client.send_chat_action(
+        chat_id=req['chat_id'],
+        action=req.get('action', 'typing')
+    )
+    await client.stop()
+    return {"result": result}
+
+@app.post("/join_chat")
+async def join_chat(req: dict):
+    """Join a chat"""
+    if req.get('session_string'):
+        client = Client(
+            name="user",
+            api_id=req['api_id'],
+            api_hash=req['api_hash'],
+            session_string=req['session_string'],
+            in_memory=True
+        )
+    elif req.get('bot_token'):
+        client = Client(
+            name="bot",
+            api_id=req['api_id'],
+            api_hash=req['api_hash'],
+            bot_token=req['bot_token'],
+            in_memory=True
+        )
+    else:
+        return {"error": "Provide session_string or bot_token"}
+    
+    await client.start()
+    result = await client.join_chat(req['chat_id'])
+    await client.stop()
+    return {"chat": {"id": result.id, "title": getattr(result, 'title', None), "type": result.type}}
+
+# Add alias endpoints for backward compatibility
+@app.post("/forward_messages")
+async def forward_messages_alias(req: ForwardMessageRequest):
+    """Alias for forward_message"""
+    return await forward_message(req)
+
+@app.post("/copy_messages") 
+async def copy_messages_alias(req: CopyMessageRequest):
+    """Alias for copy_message"""
+    return await copy_message(req)
+
+@app.post("/delete_messages")
+async def delete_messages_alias(req: DeleteMessageRequest):
+    """Alias for delete_message"""
+    return await delete_message(req)
+
+@app.post("/get_chat_history")
+async def get_chat_history_alias(req: GetMessageHistoryRequest):
+    """Alias for get_message_history"""
+    return await get_message_history(req)

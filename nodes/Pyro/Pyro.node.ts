@@ -142,9 +142,9 @@ export class Pyrogram implements INodeType {
 			case 'send_media_group':
 				return '/send_media_group'
 			case 'forward_messages':
-				return '/forward_messages'
+				return '/forward_message' // Backend uses singular
 			case 'copy_messages':
-				return '/copy_messages'
+				return '/copy_message' // Backend uses singular
 			case 'edit_message_text':
 				return '/edit_message_text'
 			case 'edit_message_caption':
@@ -152,11 +152,11 @@ export class Pyrogram implements INodeType {
 			case 'edit_message_media':
 				return '/edit_message_media'
 			case 'delete_messages':
-				return '/delete_messages'
+				return '/delete_message' // Backend uses singular
 			case 'get_messages':
 				return '/get_messages'
 			case 'get_chat_history':
-				return '/get_chat_history'
+				return '/get_message_history' // Backend uses different name
 			case 'search_messages':
 				return '/search_messages'
 			case 'download_media':
@@ -178,9 +178,12 @@ export class Pyrogram implements INodeType {
 			case 'send_message':
 				return {
 					...baseCredentials,
-					chat_id: that.getNodeParameter('chat_id', itemIndex),
+					chat_id:
+						parseInt(that.getNodeParameter('chat_id', itemIndex)) ||
+						that.getNodeParameter('chat_id', itemIndex),
 					text: that.getNodeParameter('text', itemIndex),
-					parse_mode: that.getNodeParameter('parse_mode', itemIndex, ''),
+					parse_mode:
+						that.getNodeParameter('parse_mode', itemIndex, '') || undefined,
 					disable_notification: that.getNodeParameter(
 						'disable_notification',
 						itemIndex,
