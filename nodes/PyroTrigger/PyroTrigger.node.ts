@@ -23,8 +23,7 @@ export class PyroTrigger implements INodeType {
 			const credentials = await this.getCredentials('pyroApi')
 			const expected = (credentials as any)?.triggerAuthToken
 			if (expected) {
-				const provided =
-					headerData['x-trigger-auth'] || headerData['X-Trigger-Auth']
+				const provided = headerData['x-trigger-auth'] || headerData['X-Trigger-Auth']
 				if (!provided || provided !== expected) {
 					return {
 						workflowData: [],
@@ -48,7 +47,7 @@ export class PyroTrigger implements INodeType {
 		const webhookUrl = (this as any).getNodeWebhookUrl('default')
 		const credentials = await this.getCredentials('pyroApi')
 		const baseUrl = credentials.baseUrl as string
-		const triggerType = this.getNodeParameter('triggerType', 0, 'message') as string
+		const triggerType = (this.getNodeParameter('triggerType', 0) as string) || 'message'
 
 		const payload: any = {
 			triggerType,
