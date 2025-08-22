@@ -33,35 +33,387 @@ export class Pyrogram implements INodeType {
 
 			// Route based on resource and operation
 			if (resource === 'messages') {
-				endpoint = this.getMessagesEndpoint(operation, i, baseCredentials)
-				body = this.getMessagesBody(operation, i, baseCredentials, this)
+				switch (operation) {
+					case 'send_message':
+						endpoint = '/send_message'
+						body = {
+							...baseCredentials,
+							chat_id:
+								parseInt(this.getNodeParameter('chat_id', i) as string) ||
+								this.getNodeParameter('chat_id', i),
+							text: this.getNodeParameter('text', i),
+							parse_mode:
+								this.getNodeParameter('parse_mode', i, '') || undefined,
+							disable_notification: this.getNodeParameter(
+								'disable_notification',
+								i,
+								false
+							),
+							disable_web_page_preview: this.getNodeParameter(
+								'disable_web_page_preview',
+								i,
+								false
+							),
+							reply_to_message_id:
+								this.getNodeParameter('reply_to_message_id', i, 0) || undefined,
+						}
+						break
+					case 'send_photo':
+						endpoint = '/send_photo'
+						body = baseCredentials
+						break
+					case 'send_video':
+						endpoint = '/send_video'
+						body = baseCredentials
+						break
+					case 'send_audio':
+						endpoint = '/send_audio'
+						body = baseCredentials
+						break
+					case 'send_document':
+						endpoint = '/send_document'
+						body = baseCredentials
+						break
+					case 'send_voice':
+						endpoint = '/send_voice'
+						body = baseCredentials
+						break
+					case 'send_video_note':
+						endpoint = '/send_video_note'
+						body = baseCredentials
+						break
+					case 'send_animation':
+						endpoint = '/send_animation'
+						body = baseCredentials
+						break
+					case 'send_sticker':
+						endpoint = '/send_sticker'
+						body = baseCredentials
+						break
+					case 'send_location':
+						endpoint = '/send_location'
+						body = baseCredentials
+						break
+					case 'send_venue':
+						endpoint = '/send_venue'
+						body = baseCredentials
+						break
+					case 'send_contact':
+						endpoint = '/send_contact'
+						body = baseCredentials
+						break
+					case 'send_poll':
+						endpoint = '/send_poll'
+						body = baseCredentials
+						break
+					case 'send_dice':
+						endpoint = '/send_dice'
+						body = baseCredentials
+						break
+					case 'send_media_group':
+						endpoint = '/send_media_group'
+						body = baseCredentials
+						break
+					case 'forward_messages':
+						endpoint = '/forward_message'
+						body = baseCredentials
+						break
+					case 'copy_messages':
+						endpoint = '/copy_message'
+						body = baseCredentials
+						break
+					case 'edit_message_text':
+						endpoint = '/edit_message_text'
+						body = baseCredentials
+						break
+					case 'edit_message_caption':
+						endpoint = '/edit_message_caption'
+						body = baseCredentials
+						break
+					case 'edit_message_media':
+						endpoint = '/edit_message_media'
+						body = baseCredentials
+						break
+					case 'delete_messages':
+						endpoint = '/delete_message'
+						body = baseCredentials
+						break
+					case 'get_messages':
+						endpoint = '/get_messages'
+						body = baseCredentials
+						break
+					case 'get_chat_history':
+						endpoint = '/get_message_history'
+						body = baseCredentials
+						break
+					case 'search_messages':
+						endpoint = '/search_messages'
+						body = baseCredentials
+						break
+					case 'download_media':
+						endpoint = '/download_media'
+						body = baseCredentials
+						break
+					case 'send_chat_action':
+						endpoint = '/send_chat_action'
+						body = baseCredentials
+						break
+					default:
+						throw new Error(`Unsupported messages operation: ${operation}`)
+				}
 			} else if (resource === 'chats') {
-				endpoint = this.getChatsEndpoint(operation, i, baseCredentials)
-				body = this.getChatsBody(operation, i, baseCredentials, this)
+				switch (operation) {
+					case 'join_chat':
+						endpoint = '/join_chat'
+						body = baseCredentials
+						break
+					case 'leave_chat':
+						endpoint = '/leave_chat'
+						body = baseCredentials
+						break
+					case 'get_chat':
+						endpoint = '/get_chat'
+						body = baseCredentials
+						break
+					case 'get_chat_members':
+						endpoint = '/get_chat_members'
+						body = baseCredentials
+						break
+					case 'get_chat_member':
+						endpoint = '/get_chat_member'
+						body = baseCredentials
+						break
+					case 'ban_chat_member':
+						endpoint = '/ban_chat_member'
+						body = baseCredentials
+						break
+					case 'unban_chat_member':
+						endpoint = '/unban_chat_member'
+						body = baseCredentials
+						break
+					case 'restrict_chat_member':
+						endpoint = '/restrict_chat_member'
+						body = baseCredentials
+						break
+					case 'promote_chat_member':
+						endpoint = '/promote_chat_member'
+						body = baseCredentials
+						break
+					case 'set_chat_title':
+						endpoint = '/set_chat_title'
+						body = baseCredentials
+						break
+					case 'set_chat_description':
+						endpoint = '/set_chat_description'
+						body = baseCredentials
+						break
+					case 'set_chat_photo':
+						endpoint = '/set_chat_photo'
+						body = baseCredentials
+						break
+					case 'delete_chat_photo':
+						endpoint = '/delete_chat_photo'
+						body = baseCredentials
+						break
+					case 'pin_chat_message':
+						endpoint = '/pin_chat_message'
+						body = baseCredentials
+						break
+					case 'unpin_chat_message':
+						endpoint = '/unpin_chat_message'
+						body = baseCredentials
+						break
+					case 'create_group':
+						endpoint = '/create_group'
+						body = baseCredentials
+						break
+					case 'create_channel':
+						endpoint = '/create_channel'
+						body = baseCredentials
+						break
+					default:
+						throw new Error(`Unsupported chats operation: ${operation}`)
+				}
 			} else if (resource === 'users') {
-				endpoint = this.getUsersEndpoint(operation, i, baseCredentials)
-				body = this.getUsersBody(operation, i, baseCredentials, this)
+				switch (operation) {
+					case 'get_me':
+						endpoint = '/get_me'
+						body = baseCredentials
+						break
+					case 'get_users':
+						endpoint = '/get_users'
+						body = baseCredentials
+						break
+					case 'get_chat_photos':
+						endpoint = '/get_user_profile_photos'
+						body = baseCredentials
+						break
+					case 'set_profile_photo':
+						endpoint = '/set_profile_photo'
+						body = baseCredentials
+						break
+					case 'delete_profile_photos':
+						endpoint = '/delete_profile_photos'
+						body = baseCredentials
+						break
+					case 'update_profile':
+						endpoint = '/update_profile'
+						body = baseCredentials
+						break
+					case 'block_user':
+						endpoint = '/block_user'
+						body = baseCredentials
+						break
+					case 'unblock_user':
+						endpoint = '/unblock_user'
+						body = baseCredentials
+						break
+					default:
+						throw new Error(`Unsupported users operation: ${operation}`)
+				}
 			} else if (resource === 'contacts') {
-				endpoint = this.getContactsEndpoint(operation, i, baseCredentials)
-				body = this.getContactsBody(operation, i, baseCredentials, this)
+				switch (operation) {
+					case 'get_contacts':
+						endpoint = '/get_contacts'
+						body = baseCredentials
+						break
+					case 'add_contact':
+						endpoint = '/add_contact'
+						body = baseCredentials
+						break
+					case 'delete_contacts':
+						endpoint = '/delete_contacts'
+						body = baseCredentials
+						break
+					case 'import_contacts':
+						endpoint = '/import_contacts'
+						body = baseCredentials
+						break
+					default:
+						throw new Error(`Unsupported contacts operation: ${operation}`)
+				}
 			} else if (resource === 'invite_links') {
-				endpoint = this.getInviteLinksEndpoint(operation, i, baseCredentials)
-				body = this.getInviteLinksBody(operation, i, baseCredentials, this)
+				switch (operation) {
+					case 'get_chat_invite_link_info':
+						endpoint = '/get_chat_invite_link_info'
+						body = baseCredentials
+						break
+					case 'export_chat_invite_link':
+						endpoint = '/export_chat_invite_link'
+						body = baseCredentials
+						break
+					case 'create_chat_invite_link':
+						endpoint = '/create_chat_invite_link'
+						body = baseCredentials
+						break
+					case 'edit_chat_invite_link':
+						endpoint = '/edit_chat_invite_link'
+						body = baseCredentials
+						break
+					case 'revoke_chat_invite_link':
+						endpoint = '/revoke_chat_invite_link'
+						body = baseCredentials
+						break
+					default:
+						throw new Error(`Unsupported invite_links operation: ${operation}`)
+				}
 			} else if (resource === 'password') {
-				endpoint = this.getPasswordEndpoint(operation, i, baseCredentials)
-				body = this.getPasswordBody(operation, i, baseCredentials, this)
+				switch (operation) {
+					case 'enable_cloud_password':
+						endpoint = '/enable_cloud_password'
+						body = baseCredentials
+						break
+					case 'change_cloud_password':
+						endpoint = '/change_cloud_password'
+						body = baseCredentials
+						break
+					case 'remove_cloud_password':
+						endpoint = '/remove_cloud_password'
+						body = baseCredentials
+						break
+					default:
+						throw new Error(`Unsupported password operation: ${operation}`)
+				}
 			} else if (resource === 'bot') {
-				endpoint = this.getBotEndpoint(operation, i, baseCredentials)
-				body = this.getBotBody(operation, i, baseCredentials, this)
+				switch (operation) {
+					case 'set_bot_commands':
+						endpoint = '/set_bot_commands'
+						body = baseCredentials
+						break
+					case 'get_bot_commands':
+						endpoint = '/get_bot_commands'
+						body = baseCredentials
+						break
+					case 'delete_bot_commands':
+						endpoint = '/delete_bot_commands'
+						body = baseCredentials
+						break
+					case 'answer_callback_query':
+						endpoint = '/answer_callback_query'
+						body = baseCredentials
+						break
+					case 'answer_inline_query':
+						endpoint = '/answer_inline_query'
+						body = baseCredentials
+						break
+					default:
+						throw new Error(`Unsupported bot operation: ${operation}`)
+				}
 			} else if (resource === 'utilities') {
-				endpoint = this.getUtilitiesEndpoint(operation, i, baseCredentials)
-				body = this.getUtilitiesBody(operation, i, baseCredentials, this)
+				switch (operation) {
+					case 'start':
+						endpoint = '/start'
+						body = baseCredentials
+						break
+					case 'stop':
+						endpoint = '/stop'
+						body = baseCredentials
+						break
+					case 'export_session_string':
+						endpoint = '/export_session_string'
+						body = baseCredentials
+						break
+					case 'set_parse_mode':
+						endpoint = '/set_parse_mode'
+						body = baseCredentials
+						break
+					default:
+						throw new Error(`Unsupported utilities operation: ${operation}`)
+				}
 			} else if (resource === 'advanced') {
-				endpoint = this.getAdvancedEndpoint(operation, i, baseCredentials)
-				body = this.getAdvancedBody(operation, i, baseCredentials, this)
+				switch (operation) {
+					case 'invoke':
+						endpoint = '/raw_api'
+						body = baseCredentials
+						break
+					case 'resolve_peer':
+						endpoint = '/resolve_peer'
+						body = baseCredentials
+						break
+					case 'save_file':
+						endpoint = '/save_file'
+						body = baseCredentials
+						break
+					default:
+						throw new Error(`Unsupported advanced operation: ${operation}`)
+				}
 			} else if (resource === 'stories') {
-				endpoint = this.getStoriesEndpoint(operation, i, baseCredentials)
-				body = this.getStoriesBody(operation, i, baseCredentials, this)
+				switch (operation) {
+					case 'send_story':
+						endpoint = '/send_story'
+						body = baseCredentials
+						break
+					case 'get_stories':
+						endpoint = '/get_stories'
+						body = baseCredentials
+						break
+					case 'delete_stories':
+						endpoint = '/delete_stories'
+						body = baseCredentials
+						break
+					default:
+						throw new Error(`Unsupported stories operation: ${operation}`)
+				}
 			} else {
 				throw new Error(`Unsupported resource: ${resource}`)
 			}
